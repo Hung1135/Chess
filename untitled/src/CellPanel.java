@@ -14,12 +14,13 @@ public class CellPanel extends JPanel {
     private final Color blue = Color.BLUE;
     private final Color red = Color.RED;
     private final Color green = Color.GREEN;
+    private final Color orange = new Color(255, 165, 0); // Màu cam cho vua bị chiếu
 
     public boolean isValidMove;
     public int x;
     public int y;
 
-    public JLabel imageLable;  // là mỗi piece
+    public JLabel imageLable; // là mỗi piece
 
     public ChessPiece currnetChessPiece;
 
@@ -38,38 +39,39 @@ public class CellPanel extends JPanel {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                GameFrame.Instance.centerpanel.onclickCellPanel(x,y);
+                GameFrame.Instance.centerpanel.onclickCellPanel(x, y);
 
             }
         });
     }
 
-
     public void addImage(ChessPiece piece) {
         currnetChessPiece = piece; // gắn vô luôn khi thêm ảnh con hiện tại
-        BufferedImage  pieceImage = getBufferedImageFromFile(piece);
-        Image image = pieceImage.getScaledInstance(60,60, Image.SCALE_SMOOTH);
+        BufferedImage pieceImage = getBufferedImageFromFile(piece);
+        Image image = pieceImage.getScaledInstance(60, 60, Image.SCALE_SMOOTH);
         imageLable.setIcon(new ImageIcon(image));
         imageLable.setVisible(true);
     }
 
-    public void removePiece(){
+    public void removePiece() {
         currnetChessPiece = null;
         imageLable.setVisible(false);
     }
 
-    //cái này chỉ set màu khi click
-    public void select(){
+    // cái này chỉ set màu khi click
+    public void select() {
         this.setBackground(blue);
     }
 
-    public void deselect(){
+    public void deselect() {
         this.setBackground(originColor == PieceColor.WHITE ? Color.WHITE : Color.GRAY);
         isValidMove = false;
     }
+
     public BufferedImage getBufferedImageFromFile(ChessPiece piece) {
         Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
-        String fileStr = path + "/piece/";
+        System.out.println(path);
+        String fileStr = path + "/Chess/piece/";
         if (piece.color == PieceColor.WHITE) {
             fileStr += "W_";
         } else {
@@ -85,16 +87,18 @@ public class CellPanel extends JPanel {
         }
     }
 
-
-    public void setColor(boolean isMove){
+    public void setColor(boolean isMove) {
         isValidMove = true;
-        if(isMove){
+        if (isMove) {
             setBackground(blue);
-        }else {
+        } else {
             setBackground(red);
         }
     }
 
-
+    // Highlight vua bị chiếu
+    public void setCheckColor() {
+        this.setBackground(orange);
+    }
 
 }
