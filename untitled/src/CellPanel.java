@@ -70,7 +70,8 @@ public class CellPanel extends JPanel {
 
     public BufferedImage getBufferedImageFromFile(ChessPiece piece) {
         Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
-        String fileStr = path + "/piece/";
+        System.out.println(path);
+        String fileStr = path + "/Chess/piece/";
         if (piece.color == PieceColor.WHITE) {
             fileStr += "W_";
         } else {
