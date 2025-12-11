@@ -2,45 +2,44 @@ import javax.swing.*;
 import java.awt.*;
 
 public class SetupGameDialog extends JDialog {
-    private JComboBox<String> whitePlayerCombo;
-    private JComboBox<String> blackPlayerCombo;
-    private JSpinner depthSpinner;
+    private final JComboBox<String> whiteCombo = new JComboBox<>(new String[]{"Human", "Computer"});
+    private final JComboBox<String> blackCombo = new JComboBox<>(new String[]{"Human", "Computer"});
+    private final JSpinner depthSpinner = new JSpinner(new SpinnerNumberModel(3, 1, 10, 1));
 
     public SetupGameDialog(Window parent) {
         super(parent, "Setup Game", ModalityType.APPLICATION_MODAL);
-        setSize(300, 200);
+        setSize(340, 220);
+        setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
 
-        JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
-        whitePlayerCombo = new JComboBox<>(new String[]{"Human", "Computer"});
-        blackPlayerCombo = new JComboBox<>(new String[]{"Human", "Computer"});
-        depthSpinner = new JSpinner(new SpinnerNumberModel(2, 1, 10, 1));
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 15));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        formPanel.add(new JLabel("White Player:"));
-        formPanel.add(whitePlayerCombo);
-        formPanel.add(new JLabel("Black Player:"));
-        formPanel.add(blackPlayerCombo);
-        formPanel.add(new JLabel("Search Depth:"));
-        formPanel.add(depthSpinner);
+        panel.add(new JLabel("White Player:"));
+        panel.add(whiteCombo);
+        panel.add(new JLabel("Black Player:"));
+        panel.add(blackCombo);
+        panel.add(new JLabel("AI Search Depth:"));
+        panel.add(depthSpinner);
 
-        JPanel buttonPanel = new JPanel();
-        JButton okButton = new JButton("OK");
-        JButton cancelButton = new JButton("Cancel");
+        JPanel buttons = new JPanel(new FlowLayout());
+        JButton ok = new JButton("Start Game");
+        JButton cancel = new JButton("Cancel");
 
-        okButton.addActionListener(e -> {
-            System.out.println("===== GAME SETUP =====");
-            System.out.println("White: " + whitePlayerCombo.getSelectedItem());
-            System.out.println("Black: " + blackPlayerCombo.getSelectedItem());
-            System.out.println("Depth: " + depthSpinner.getValue());
+        ok.addActionListener(e -> {
+            String white = (String) whiteCombo.getSelectedItem();
+            String black = (String) blackCombo.getSelectedItem();
+            int depth = (Integer) depthSpinner.getValue();
+
+            GameFrame.Instance.centerpanel.setPlayers(white, black, depth);
             dispose();
         });
+        cancel.addActionListener(e -> dispose());
 
-        cancelButton.addActionListener(e -> dispose());
+        buttons.add(ok);
+        buttons.add(cancel);
 
-        buttonPanel.add(okButton);
-        buttonPanel.add(cancelButton);
-
-        add(formPanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+        add(panel, BorderLayout.CENTER);
+        add(buttons, BorderLayout.SOUTH);
     }
 }

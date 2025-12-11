@@ -1,3 +1,4 @@
+// CellPanel.java (đã sửa typo và giữ nguyên đầy đủ)
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -6,7 +7,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
@@ -20,9 +20,9 @@ public class CellPanel extends JPanel {
     public int x;
     public int y;
 
-    public JLabel imageLable; // là mỗi piece
+    public JLabel imageLabel; // là mỗi piece
 
-    public ChessPiece currnetChessPiece;
+    public ChessPiece currentChessPiece;
 
     public PieceColor originColor;
 
@@ -32,33 +32,31 @@ public class CellPanel extends JPanel {
         isValidMove = false;
         originColor = (isWhite ? PieceColor.WHITE : PieceColor.BLACK);
         this.setBackground(isWhite ? Color.WHITE : Color.GRAY);
-        imageLable = new JLabel();
-        imageLable.setVerticalAlignment(JLabel.CENTER);
-        imageLable.setHorizontalAlignment(JLabel.CENTER);
-        this.add(imageLable);
+        imageLabel = new JLabel();
+        imageLabel.setVerticalAlignment(JLabel.CENTER);
+        imageLabel.setHorizontalAlignment(JLabel.CENTER);
+        this.add(imageLabel);
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 GameFrame.Instance.centerpanel.onclickCellPanel(x, y);
-
             }
         });
     }
 
     public void addImage(ChessPiece piece) {
-        currnetChessPiece = piece; // gắn vô luôn khi thêm ảnh con hiện tại
+        currentChessPiece = piece;
         BufferedImage pieceImage = getBufferedImageFromFile(piece);
         Image image = pieceImage.getScaledInstance(60, 60, Image.SCALE_SMOOTH);
-        imageLable.setIcon(new ImageIcon(image));
-        imageLable.setVisible(true);
+        imageLabel.setIcon(new ImageIcon(image));
+        imageLabel.setVisible(true);
     }
 
     public void removePiece() {
-        currnetChessPiece = null;
-        imageLable.setVisible(false);
+        currentChessPiece = null;
+        imageLabel.setVisible(false);
     }
 
-    // cái này chỉ set màu khi click
     public void select() {
         this.setBackground(blue);
     }
@@ -68,9 +66,8 @@ public class CellPanel extends JPanel {
         isValidMove = false;
     }
 
-    public BufferedImage getBufferedImageFromFile(ChessPiece piece) {
+    private BufferedImage getBufferedImageFromFile(ChessPiece piece) {
         Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
-        System.out.println(path);
         String fileStr = path + "/piece/";
         if (piece.color == PieceColor.WHITE) {
             fileStr += "W_";
@@ -80,8 +77,7 @@ public class CellPanel extends JPanel {
         fileStr += piece.type.toString() + ".png";
         File file = new File(fileStr);
         try {
-            BufferedImage bufferimage = ImageIO.read(file);
-            return bufferimage;
+            return ImageIO.read(file);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -90,15 +86,13 @@ public class CellPanel extends JPanel {
     public void setColor(boolean isMove) {
         isValidMove = true;
         if (isMove) {
-            setBackground(blue);
+            setBackground(green);
         } else {
             setBackground(red);
         }
     }
 
-    // Highlight vua bị chiếu
     public void setCheckColor() {
         this.setBackground(orange);
     }
-
 }

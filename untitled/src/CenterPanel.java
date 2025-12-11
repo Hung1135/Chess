@@ -1,702 +1,476 @@
 import javax.swing.*;
 import java.awt.*;
-import java.lang.classfile.constantpool.PackageEntry;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CenterPanel extends JPanel {
-    private CellPanel[][] boardCell = new CellPanel[8][8];
-    private BoardState boardState;
+
+    private final CellPanel[][] boardCell = new CellPanel[8][8];
+    private BoardState boardState = BoardState.NO_SELECT;
     private CellPanel selectedCell;
     private PieceColor currentTurn = PieceColor.WHITE;
 
-    // En Passant: Lưu vị trí tốt vừa nhảy 2 ô ở nước đi trước
-    private int[] lastPawnDoubleMove = null; // [x, y] của tốt vừa nhảy 2 ô
+    // En Passant
+    private int[] lastPawnDoubleMove = null;
 
-    // site
+    // Cấu hình người chơi
+    private PlayerType whitePlayer = PlayerType.HUMAN;
+    private PlayerType blackPlayer = PlayerType.HUMAN;
+    private int searchDepth = 3;
+
+    private enum PlayerType { HUMAN, COMPUTER }
+
+    // --------------------------------------------------------------
+    // Constructor
+    // --------------------------------------------------------------
     public CenterPanel() {
-        boardState = BoardState.NO_SELECT;
-        this.setLayout(new GridLayout(8, 8));
+        setLayout(new GridLayout(8, 8));
         boolean isWhite = true;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                CellPanel cellPanel = new CellPanel(isWhite, i, j);
-                if (i == 1 || i == 6) {
-                    cellPanel.addImage(new ChessPiece(i == 1 ? PieceColor.BLACK : PieceColor.WHITE, PieceType.PAWN));
-
-                }
-                if (i == 0 && (j == 0 || j == 7)) {
-                    cellPanel.addImage(new ChessPiece(PieceColor.BLACK, PieceType.ROOK));
-                }
-                if (i == 7 && (j == 0 || j == 7)) {
-                    cellPanel.addImage(new ChessPiece(PieceColor.WHITE, PieceType.ROOK));
-                }
-                if (i == 0 && (j == 1 || j == 6)) {
-                    cellPanel.addImage(new ChessPiece(PieceColor.BLACK, PieceType.KNIGHT));
-                }
-                if (i == 7 && (j == 1 || j == 6)) {
-                    cellPanel.addImage(new ChessPiece(PieceColor.WHITE, PieceType.KNIGHT));
-                }
-                if (i == 0 && (j == 2 || j == 5)) {
-                    cellPanel.addImage(new ChessPiece(PieceColor.BLACK, PieceType.BISHOP));
-                }
-                if (i == 7 && (j == 2 || j == 5)) {
-                    cellPanel.addImage(new ChessPiece(PieceColor.WHITE, PieceType.BISHOP));
-                }
-                if (i == 0 && (j == 4)) {
-                    cellPanel.addImage(new ChessPiece(PieceColor.BLACK, PieceType.KING));
-                }
-                if (i == 7 && (j == 4)) {
-                    cellPanel.addImage(new ChessPiece(PieceColor.WHITE, PieceType.KING));
-                }
-                if (i == 0 && (j == 3)) {
-                    cellPanel.addImage(new ChessPiece(PieceColor.BLACK, PieceType.QUEEN));
-                }
-                if (i == 7 && (j == 3)) {
-                    cellPanel.addImage(new ChessPiece(PieceColor.WHITE, PieceType.QUEEN));
-                }
-
-                this.add(cellPanel);
-                boardCell[i][j] = cellPanel;
+                CellPanel cell = new CellPanel(isWhite, i, j);
+                placeInitialPieces(cell, i, j);
+                add(cell);
+                boardCell[i][j] = cell;
                 isWhite = !isWhite;
             }
             isWhite = !isWhite;
         }
-        selectedCell = null;
     }
 
-    public void onclickCellPanel(int x, int y) {
+    private void placeInitialPieces(CellPanel cell, int row, int col) {
+        if (row == 1) cell.addImage(new ChessPiece(PieceColor.BLACK, PieceType.PAWN));
+        if (row == 6) cell.addImage(new ChessPiece(PieceColor.WHITE, PieceType.PAWN));
 
-        CellPanel clickedCellPannel = boardCell[x][y];
-        ChessPiece piece = clickedCellPannel.currnetChessPiece;
+        if (row == 0 || row == 7) {
+            PieceColor color = (row == 0) ? PieceColor.BLACK : PieceColor.WHITE;
+            if (col == 0 || col == 7) cell.addImage(new ChessPiece(color, PieceType.ROOK));
+            if (col == 1 || col == 6) cell.addImage(new ChessPiece(color, PieceType.KNIGHT));
+            if (col == 2 || col == 5) cell.addImage(new ChessPiece(color, PieceType.BISHOP));
+            if (col == 3) cell.addImage(new ChessPiece(color, PieceType.QUEEN));
+            if (col == 4) cell.addImage(new ChessPiece(color, PieceType.KING));
+        }
+    }
+
+    // --------------------------------------------------------------
+    // Gọi từ SetupGameDialog
+    // --------------------------------------------------------------
+    public void setPlayers(String white, String black, int depth) {
+        whitePlayer = "Computer".equals(white) ? PlayerType.COMPUTER : PlayerType.HUMAN;
+        blackPlayer = "Computer".equals(black) ? PlayerType.COMPUTER : PlayerType.HUMAN;
+        searchDepth = depth;
+
+        currentTurn = PieceColor.WHITE;
+        lastPawnDoubleMove = null;
+        deSelectCellPanelAll();
+        boardState = BoardState.NO_SELECT;
+        highlightKingInCheck();
+    }
+
+    // --------------------------------------------------------------
+    // Click xử lý của người chơi
+    // --------------------------------------------------------------
+    public void onclickCellPanel(int x, int y) {
+        // Nếu đang là lượt máy → chặn click người
+        if ((currentTurn == PieceColor.WHITE && whitePlayer == PlayerType.COMPUTER) ||
+                (currentTurn == PieceColor.BLACK && blackPlayer == PlayerType.COMPUTER)) {
+            return;
+        }
+
+        CellPanel clicked = boardCell[x][y];
+        ChessPiece piece = clicked.currentChessPiece;
 
         if (boardState == BoardState.NO_SELECT) {
             deSelectCellPanelAll();
-            // Highlight vua nếu đang bị chiếu
             highlightKingInCheck();
-            if (piece == null) {
-                return;
-            }
-            if (piece.color != currentTurn) {
-                System.out.println("Chưa tới lượt bên " + piece.color);
-                return;
-            }
-            clickedCellPannel.select(); // tô xanh ô đang chọn
 
-            switch (piece.type) {
-                case PAWN:
-                    PawnCheck(x, y);
-                    break;
-                case KNIGHT:
-                    KnightCheck(x, y);
-                    break;
-                case ROOK:
-                    RookCheck(x, y);
-                    break;
-                case BISHOP:
-                    BishopCheck(x, y);
-                    break;
-                case QUEEN:
-                    QueenCheck(x, y);
-                    break;
-                case KING:
-                    KingCheck(x, y);
-                    break;
-            }
+            if (piece == null || piece.color != currentTurn) return;
 
-            selectedCell = clickedCellPannel;
+            clicked.select();
+            showLegalMoves(x, y);
+            selectedCell = clicked;
             boardState = BoardState.PIECE_SELECT;
 
-        } else if (boardState == BoardState.PIECE_SELECT) {
-            System.out.println(BoardState.PIECE_SELECT);
-            if (boardCell[x][y].isValidMove) {
-
-                int fromX = selectedCell.x;
-                int fromY = selectedCell.y;
-                int toX = x;
-                int toY = y;
-                ChessPiece movingPiece = selectedCell.currnetChessPiece;
-
-                // Xử lý En Passant: Xóa tốt bị bắt qua đường
-                if (movingPiece.type == PieceType.PAWN && lastPawnDoubleMove != null) {
-                    // Kiểm tra nếu đi chuyển chéo đến ô trống (en passant)
-                    if (Math.abs(toY - fromY) == 1 && boardCell[toX][toY].currnetChessPiece == null) {
-                        // Kiểm tra nếu đang bắt tốt qua đường
-                        if (lastPawnDoubleMove[1] == toY) {
-                            if ((movingPiece.color == PieceColor.WHITE && lastPawnDoubleMove[0] == fromX
-                                    && toX == fromX - 1) ||
-                                    (movingPiece.color == PieceColor.BLACK && lastPawnDoubleMove[0] == fromX
-                                            && toX == fromX + 1)) {
-                                // Xóa tốt bị bắt qua đường
-                                boardCell[lastPawnDoubleMove[0]][lastPawnDoubleMove[1]].removePiece();
-                            }
-                        }
-                    }
-                }
-
-                ChessPiece pieceAfterMove = handlePawnPromotionIfNeeded(movingPiece, toX);
-
-                clickedCellPannel.addImage(pieceAfterMove);
-
-                // Xóa quân ở ô cũ
-                selectedCell.removePiece();
-
-                // Cập nhật lastPawnDoubleMove nếu tốt vừa nhảy 2 ô
-                if (movingPiece.type == PieceType.PAWN && Math.abs(toX - fromX) == 2) {
-                    lastPawnDoubleMove = new int[] { toX, toY };
-                } else {
-                    // Xóa lastPawnDoubleMove nếu không phải tốt nhảy 2 ô
-                    lastPawnDoubleMove = null;
-                }
-
-                selectedCell = null;
-
-                // Chuyển trạng thái
-                boardState = BoardState.NO_SELECT;
+        } else { // PIECE_SELECT
+            if (clicked.isValidMove) {
+                executeMove(selectedCell.x, selectedCell.y, x, y);
                 deSelectCellPanelAll();
-
-                // Nếu bạn có đổi lượt thì giữ lại:
-                currentTurn = (currentTurn == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
-                System.out.println("Tới lượt: " + currentTurn);
-
-                // Highlight vua nếu bị chiếu sau khi đổi lượt
+                boardState = BoardState.NO_SELECT;
                 highlightKingInCheck();
 
+                // Nếu lượt tiếp theo là máy → tự động đi
+                if ((currentTurn == PieceColor.WHITE && whitePlayer == PlayerType.COMPUTER) ||
+                        (currentTurn == PieceColor.BLACK && blackPlayer == PlayerType.COMPUTER)) {
+                    SwingUtilities.invokeLater(this::makeComputerMove);
+                }
             } else {
-                deSelectCellPanelAll();// thi bo select
-                selectedCell = null;
+                deSelectCellPanelAll();
                 boardState = BoardState.NO_SELECT;
+                onclickCellPanel(x, y); // chọn lại quân khác
             }
         }
     }
 
-    private void QueenCheck(int x, int y) {
-        BishopCheck(x, y);
-        RookCheck(x, y);
+    // --------------------------------------------------------------
+    // Thực hiện nước đi (của người hoặc máy)
+    // --------------------------------------------------------------
+    private void executeMove(int fromX, int fromY, int toX, int toY) {
+        ChessPiece moving = boardCell[fromX][fromY].currentChessPiece;
+        ChessPiece captured = boardCell[toX][toY].currentChessPiece;
+
+        // Di chuyển quân
+        boardCell[toX][toY].currentChessPiece = moving;
+        boardCell[fromX][fromY].currentChessPiece = null;
+        boardCell[toX][toY].addImage(moving);
+        boardCell[fromX][fromY].removePiece();
+
+        // Promotion (luôn lên Hậu)
+        if (moving.type == PieceType.PAWN && (toX == 0 || toX == 7)) {
+            moving.type = PieceType.QUEEN;
+            boardCell[toX][toY].addImage(moving);
+        }
+
+        // En Passant
+        if (moving.type == PieceType.PAWN && captured == null &&
+                Math.abs(fromY - toY) == 1 && Math.abs(fromX - toX) == 1) {
+            int removeX = (currentTurn == PieceColor.WHITE) ? toX + 1 : toX - 1;
+            boardCell[removeX][toY].removePiece();
+        }
+
+        // Cập nhật double pawn move
+        if (moving.type == PieceType.PAWN && Math.abs(fromX - toX) == 2) {
+            lastPawnDoubleMove = new int[]{toX, toY};
+        } else {
+            lastPawnDoubleMove = null;
+        }
+
+        // Đổi lượt
+        currentTurn = (currentTurn == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
     }
 
-    public void deSelectCellPanelAll() {
+    // --------------------------------------------------------------
+    // Hiển thị các nước đi hợp lệ khi người chơi chọn quân
+    // --------------------------------------------------------------
+    private void showLegalMoves(int x, int y) {
+        List<Move> moves = generateLegalMoves(x, y);
+        for (Move m : moves) {
+            boolean isCapture = boardCell[m.toX][m.toY].currentChessPiece != null;
+            boardCell[m.toX][m.toY].setColor(!isCapture); // xanh nếu trống, đỏ nếu ăn
+        }
+    }
+
+    private List<Move> generateLegalMoves(int x, int y) {
+        ChessPiece p = boardCell[x][y].currentChessPiece;
+        List<Move> list = new ArrayList<>();
+        generateMovesForPiece(list, x, y, p);
+        return list;
+    }
+
+    private void generateMovesForPiece(List<Move> list, int x, int y, ChessPiece p) {
+        int dir = (p.color == PieceColor.WHITE) ? -1 : 1;
+
+        switch (p.type) {
+            case PAWN -> {
+                int nx = x + dir;
+                if (nx >= 0 && nx < 8 && boardCell[nx][y].currentChessPiece == null) {
+                    if (isMoveSafe(x, y, nx, y)) list.add(new Move(x, y, nx, y));
+
+                    // 2 ô đầu
+                    if ((x == 6 && p.color == PieceColor.WHITE) || (x == 1 && p.color == PieceColor.BLACK)) {
+                        int nx2 = x + 2 * dir;
+                        if (boardCell[nx2][y].currentChessPiece == null && boardCell[nx][y].currentChessPiece == null)
+                            if (isMoveSafe(x, y, nx2, y)) list.add(new Move(x, y, nx2, y));
+                    }
+                }
+                // Ăn chéo + En Passant
+                for (int dy : new int[]{-1, 1}) {
+                    int ny = y + dy;
+                    if (ny >= 0 && ny < 8 && nx >= 0 && nx < 8) {
+                        ChessPiece target = boardCell[nx][ny].currentChessPiece;
+                        if (target != null && target.color != p.color && isMoveSafe(x, y, nx, ny))
+                            list.add(new Move(x, y, nx, ny));
+                        else if (target == null && lastPawnDoubleMove != null &&
+                                lastPawnDoubleMove[0] == nx && lastPawnDoubleMove[1] == ny)
+                            if (isMoveSafe(x, y, nx, ny)) list.add(new Move(x, y, nx, ny));
+                    }
+                }
+            }
+            case KNIGHT -> {
+                int[][] d = {{-2,-1},{-2,1},{-1,-2},{-1,2},{1,-2},{1,2},{2,-1},{2,1}};
+                for (int[] dd : d) {
+                    int nx = x + dd[0], ny = y + dd[1];
+                    if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+                        ChessPiece t = boardCell[nx][ny].currentChessPiece;
+                        if (t == null || t.color != p.color)
+                            if (isMoveSafe(x, y, nx, ny)) list.add(new Move(x, y, nx, ny));
+                    }
+                }
+            }
+            case ROOK -> addLineMoves(list, x, y, p.color, new int[][]{{0,1},{0,-1},{1,0},{-1,0}});
+            case BISHOP -> addLineMoves(list, x, y, p.color, new int[][]{{1,1},{1,-1},{-1,1},{-1,-1}});
+            case QUEEN -> {
+                addLineMoves(list, x, y, p.color, new int[][]{{0,1},{0,-1},{1,0},{-1,0}});
+                addLineMoves(list, x, y, p.color, new int[][]{{1,1},{1,-1},{-1,1},{-1,-1}});
+            }
+            case KING -> {
+                for (int dx = -1; dx <= 1; dx++) for (int dy = -1; dy <= 1; dy++) {
+                    if (dx == 0 && dy == 0) continue;
+                    int nx = x + dx, ny = y + dy;
+                    if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+                        ChessPiece t = boardCell[nx][ny].currentChessPiece;
+                        if (t == null || t.color != p.color)
+                            if (isMoveSafe(x, y, nx, ny)) list.add(new Move(x, y, nx, ny));
+                    }
+                }
+            }
+        }
+    }
+
+    private void addLineMoves(List<Move> list, int x, int y, PieceColor color, int[][] dirs) {
+        for (int[] d : dirs) {
+            for (int step = 1; step < 8; step++) {
+                int nx = x + step * d[0];
+                int ny = y + step * d[1];
+                if (nx < 0 || nx >= 8 || ny < 0 || ny >= 8) break;
+                ChessPiece t = boardCell[nx][ny].currentChessPiece;
+                if (t == null) {
+                    if (isMoveSafe(x, y, nx, ny)) list.add(new Move(x, y, nx, ny));
+                } else {
+                    if (t.color != color && isMoveSafe(x, y, nx, ny)) list.add(new Move(x, y, nx, ny));
+                    break;
+                }
+            }
+        }
+    }
+
+    // --------------------------------------------------------------
+    // AI – Minimax + Alpha-Beta
+    // --------------------------------------------------------------
+    private void makeComputerMove() {
+        Move best = findBestMove(searchDepth, currentTurn == PieceColor.WHITE);
+        if (best != null) {
+            executeMove(best.fromX, best.fromY, best.toX, best.toY);
+            deSelectCellPanelAll();
+            highlightKingInCheck();
+        }
+    }
+
+    private Move findBestMove(int depth, boolean maximizing) {
+        Move best = null;
+        int bestVal = maximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        for (Move m : getAllLegalMoves(currentTurn)) {
+            makeMove(m);
+            int val = minimax(depth - 1, !maximizing, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            undoMove(m);
+
+            if (maximizing && val > bestVal || !maximizing && val < bestVal) {
+                bestVal = val;
+                best = m;
+            }
+        }
+        return best;
+    }
+
+    private int minimax(int depth, boolean maximizing, int alpha, int beta) {
+        if (depth == 0) return evaluateBoard();
+
+        int best = maximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        PieceColor player = maximizing ? currentTurn : (currentTurn == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE);
+
+        for (Move m : getAllLegalMoves(player)) {
+            makeMove(m);
+            int val = minimax(depth - 1, !maximizing, alpha, beta);
+            undoMove(m);
+
+            if (maximizing) {
+                best = Math.max(best, val);
+                alpha = Math.max(alpha, best);
+            } else {
+                best = Math.min(best, val);
+                beta = Math.min(beta, best);
+            }
+            if (beta <= alpha) break;
+        }
+        return best;
+    }
+
+    private List<Move> getAllLegalMoves(PieceColor color) {
+        List<Move> all = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                boardCell[i][j].deselect();
-            }
-        }
-    }
-
-    private void PawnCheck(int x, int y) {
-        ChessPiece thisPiece = boardCell[x][y].currnetChessPiece;
-        if (thisPiece.color == PieceColor.WHITE) {
-            int maxStep = (x == 6 ? 2 : 1);
-            for (int i = x - 1; i >= x - maxStep; i--) {
-                if (!checkValidMove(i, y))
-                    break;
-                ChessPiece chessPiece = boardCell[i][y].currnetChessPiece;
-                if (chessPiece != null) { // bị chặn đầu
-                    break;
-                } else {
-                    // Chỉ highlight nếu nước đi an toàn (không làm vua bị chiếu)
-                    if (isMoveSafe(x, y, i, y)) {
-                        boardCell[i][y].setColor(true);
-                    }
-                }
-            }
-            // ăn chéo trái
-            if (checkValidMove(x - 1, y - 1)) {
-                CellPanel cellPanel = boardCell[x - 1][y - 1];
-                if (cellPanel.currnetChessPiece != null) {
-                    if (cellPanel.currnetChessPiece.color != thisPiece.color) {
-                        // Chỉ highlight nếu nước đi an toàn
-                        if (isMoveSafe(x, y, x - 1, y - 1)) {
-                            cellPanel.setColor(false);
-                        }
-                    }
-                }
-            }
-            // ăn chéo phải
-            if (checkValidMove(x - 1, y + 1)) {
-                CellPanel cellPanel = boardCell[x - 1][y + 1];
-                if (cellPanel.currnetChessPiece != null) {
-                    if (cellPanel.currnetChessPiece.color != thisPiece.color) {
-                        // Chỉ highlight nếu nước đi an toàn
-                        if (isMoveSafe(x, y, x - 1, y + 1)) {
-                            cellPanel.setColor(false);
-                        }
-                    }
-                }
-            }
-
-            // En Passant cho quân trắng (WHITE)
-            if (x == 3 && lastPawnDoubleMove != null && lastPawnDoubleMove[0] == 3) {
-                // Tốt trắng ở hàng 3 (index 3), tốt đen vừa nhảy từ 1 -> 3
-                if (Math.abs(lastPawnDoubleMove[1] - y) == 1) {
-                    // Tốt đen ở bên cạnh
-                    ChessPiece adjacentPiece = boardCell[3][lastPawnDoubleMove[1]].currnetChessPiece;
-                    if (adjacentPiece != null && adjacentPiece.type == PieceType.PAWN
-                            && adjacentPiece.color == PieceColor.BLACK) {
-                        // Highlight ô en passant
-                        int enPassantX = 2; // Đi lên hàng 2
-                        int enPassantY = lastPawnDoubleMove[1];
-                        if (checkValidMove(enPassantX, enPassantY) && isMoveSafe(x, y, enPassantX, enPassantY)) {
-                            boardCell[enPassantX][enPassantY].setColor(false); // Đỏ = nước ăn
-                        }
-                    }
-                }
-            }
-        } else { // con đen
-            int maxStep = (x == 1 ? 2 : 1);
-            for (int i = x + 1; i <= x + maxStep; i++) {
-                if (!checkValidMove(i, y))
-                    break;
-                ChessPiece chessPiece = boardCell[i][y].currnetChessPiece;
-                if (chessPiece != null) { // bị chặn đầu
-                    break;
-                } else {
-                    // Chỉ highlight nếu nước đi an toàn
-                    if (isMoveSafe(x, y, i, y)) {
-                        boardCell[i][y].setColor(true);
-                    }
-                }
-            }
-            // ăn chéo trái
-            if (checkValidMove(x + 1, y - 1)) {
-                CellPanel cellPanel = boardCell[x + 1][y - 1];
-                if (cellPanel.currnetChessPiece != null) {
-                    if (cellPanel.currnetChessPiece.color != thisPiece.color) {
-                        // Chỉ highlight nếu nước đi an toàn
-                        if (isMoveSafe(x, y, x + 1, y - 1)) {
-                            cellPanel.setColor(false);
-                        }
-                    }
-                }
-            }
-            // ăn chéo phải
-            if (checkValidMove(x + 1, y + 1)) {
-                CellPanel cellPanel = boardCell[x + 1][y + 1];
-                if (cellPanel.currnetChessPiece != null) {
-                    if (cellPanel.currnetChessPiece.color != thisPiece.color) {
-                        // Chỉ highlight nếu nước đi an toàn
-                        if (isMoveSafe(x, y, x + 1, y + 1)) {
-                            cellPanel.setColor(false);
-                        }
-                    }
-                }
-            }
-
-            // En Passant cho quân đen (BLACK)
-            if (x == 4 && lastPawnDoubleMove != null && lastPawnDoubleMove[0] == 4) {
-                // Tốt đen ở hàng 4 (index 4), tốt trắng vừa nhảy từ 6 -> 4
-                if (Math.abs(lastPawnDoubleMove[1] - y) == 1) {
-                    // Tốt trắng ở bân cạnh
-                    ChessPiece adjacentPiece = boardCell[4][lastPawnDoubleMove[1]].currnetChessPiece;
-                    if (adjacentPiece != null && adjacentPiece.type == PieceType.PAWN
-                            && adjacentPiece.color == PieceColor.WHITE) {
-                        // Highlight ô en passant
-                        int enPassantX = 5; // Đi xuống hàng 5
-                        int enPassantY = lastPawnDoubleMove[1];
-                        if (checkValidMove(enPassantX, enPassantY) && isMoveSafe(x, y, enPassantX, enPassantY)) {
-                            boardCell[enPassantX][enPassantY].setColor(false); // Đỏ = nước ăn
-                        }
-                    }
+                ChessPiece p = boardCell[i][j].currentChessPiece;
+                if (p != null && p.color == color) {
+                    generateMovesForPiece(all, i, j, p);
                 }
             }
         }
+        return all;
     }
 
-    private void KnightCheck(int x, int y) {
-        ChessPiece thisPiece = boardCell[x][y].currnetChessPiece;
-        if (thisPiece == null)
-            return;
+    private void makeMove(Move m) {
+        ChessPiece moving = boardCell[m.fromX][m.fromY].currentChessPiece;
+        m.captured = boardCell[m.toX][m.toY].currentChessPiece;
+        m.wasDoublePawn = (moving.type == PieceType.PAWN && Math.abs(m.fromX - m.toX) == 2);
 
-        // 8 hướng đi của quân Mã: (±2, ±1) và (±1, ±2)
-        int[][] knightMoves = {
-                { 2, 1 },
-                { 2, -1 },
-                { -2, 1 },
-                { -2, -1 },
-                { 1, 2 },
-                { 1, -2 },
-                { -1, 2 },
-                { -1, -2 }
-        };
+        boardCell[m.toX][m.toY].currentChessPiece = moving;
+        boardCell[m.fromX][m.fromY].currentChessPiece = null;
 
-        for (int i = 0; i < knightMoves.length; i++) {
-            int newX = x + knightMoves[i][0];
-            int newY = y + knightMoves[i][1];
-
-            // 1) Kiểm tra ô mới có nằm trong bàn cờ không
-            if (!checkValidMove(newX, newY))
-                continue;
-
-            CellPanel targetCell = boardCell[newX][newY];
-            ChessPiece targetPiece = targetCell.currnetChessPiece;
-
-            if (targetPiece == null) {
-                // Chỉ highlight nếu nước đi an toàn
-                if (isMoveSafe(x, y, newX, newY)) {
-                    targetCell.setColor(true);
-                }
-            } else {
-                // Nếu có quân đối phương -> có thể ăn
-                if (targetPiece.color != thisPiece.color) {
-                    // Chỉ highlight nếu nước đi an toàn
-                    if (isMoveSafe(x, y, newX, newY)) {
-                        targetCell.setColor(false); // false = ô có thể ăn
-                    }
-                }
-                // Nếu là quân cùng màu thì không làm gì cả
-            }
+        if (moving.type == PieceType.PAWN && (m.toX == 0 || m.toX == 7)) {
+            moving.type = PieceType.QUEEN;
         }
     }
 
-    private void RookCheck(int x, int y) {
-        ChessPiece thisPiece = boardCell[x][y].currnetChessPiece;
-        if (thisPiece == null)
-            return;
+    private void undoMove(Move m) {
+        ChessPiece moving = boardCell[m.toX][m.toY].currentChessPiece;
+        boardCell[m.fromX][m.fromY].currentChessPiece = moving;
+        boardCell[m.toX][m.toY].currentChessPiece = m.captured;
+        if (m.wasDoublePawn) lastPawnDoubleMove = new int[]{m.toX, m.toY};
+        else if (lastPawnDoubleMove != null && lastPawnDoubleMove[0] == m.toX && lastPawnDoubleMove[1] == m.toY)
+            lastPawnDoubleMove = null;
+    }
 
-        int[][] directions = {
-                { -1, 0 }, // lên
-                { 1, 0 }, // xuống
-                { 0, -1 }, // trái
-                { 0, 1 } // phải
-        };
-
-        // Duyệt từng hướng một
-        for (int d = 0; d < directions.length; d++) {
-            int dx = directions[d][0];
-            int dy = directions[d][1];
-
-            for (int step = 1; step < 8; step++) {
-                int newX = x + dx * step;
-                int newY = y + dy * step;
-                // kiểm tra xem nước đi có nằm trong bàn cờ không
-                if (!checkValidMove(newX, newY)) {
-                    break;
-                }
-
-                CellPanel targetCell = boardCell[newX][newY];
-                ChessPiece targetPiece = targetCell.currnetChessPiece;
-
-                if (targetPiece == null) {
-                    // Chỉ highlight nếu nước đi an toàn
-                    if (isMoveSafe(x, y, newX, newY)) {
-                        targetCell.setColor(true);
-                    }
-                } else {
-                    if (targetPiece.color != thisPiece.color) {
-                        // Chỉ highlight nếu nước đi an toàn
-                        if (isMoveSafe(x, y, newX, newY)) {
-                            targetCell.setColor(false); // ô ăn (đỏ)
-                        }
-                    }
-                    break;
+    private int evaluateBoard() {
+        int score = 0;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPiece p = boardCell[i][j].currentChessPiece;
+                if (p != null) {
+                    int value = switch (p.type) {
+                        case PAWN -> 100;
+                        case KNIGHT, BISHOP -> 320;
+                        case ROOK -> 500;
+                        case QUEEN -> 900;
+                        case KING -> 20000;
+                    };
+                    score += (p.color == PieceColor.WHITE) ? value : -value;
                 }
             }
         }
+        return score;
     }
 
-    private void BishopCheck(int x, int y) {
-        ChessPiece thisPiece = boardCell[x][y].currnetChessPiece;
-        if (thisPiece == null)
-            return;
+    // --------------------------------------------------------------
+    // Kiểm tra chiếu, an toàn, v.v. (đã đầy đủ, không còn typo)
+    // --------------------------------------------------------------
+    private boolean isMoveSafe(int fromX, int fromY, int toX, int toY) {
+        ChessPiece moving = boardCell[fromX][fromY].currentChessPiece;
+        ChessPiece captured = boardCell[toX][toY].currentChessPiece;
 
-        int[][] directions = {
-                { -1, -1 }, // lên - trái
-                { -1, 1 }, // lên - phải
-                { 1, -1 }, // xuống - trái
-                { 1, 1 } // xuống - phải
-        };
+        boardCell[toX][toY].currentChessPiece = moving;
+        boardCell[fromX][fromY].currentChessPiece = null;
 
-        for (int d = 0; d < directions.length; d++) {
-            int dx = directions[d][0];
-            int dy = directions[d][1];
+        boolean safe = !isKingInCheck(moving.color);
 
-            for (int step = 1; step < 8; step++) {
-                int newX = x + dx * step;
-                int newY = y + dy * step;
-
-                if (!checkValidMove(newX, newY)) {
-                    break;
-                }
-
-                CellPanel targetCell = boardCell[newX][newY];
-                ChessPiece targetPiece = targetCell.currnetChessPiece;
-
-                if (targetPiece == null) {
-                    // Chỉ highlight nếu nước đi an toàn
-                    if (isMoveSafe(x, y, newX, newY)) {
-                        targetCell.setColor(true);
-                    }
-                } else {
-                    if (targetPiece.color != thisPiece.color) {
-                        // Chỉ highlight nếu nước đi an toàn
-                        if (isMoveSafe(x, y, newX, newY)) {
-                            targetCell.setColor(false);
-                        }
-                    }
-                    break;
-                }
-            }
-        }
+        boardCell[fromX][fromY].currentChessPiece = moving;
+        boardCell[toX][toY].currentChessPiece = captured;
+        return safe;
     }
 
-    private void KingCheck(int x, int y) {
-        ChessPiece thisPiece = boardCell[x][y].currnetChessPiece;
-        if (thisPiece == null)
-            return;
-
-        // 8 hướng xung quanh vua
-        int[][] kingMoves = {
-                { -1, -1 }, // lên trái
-                { -1, 0 }, // lên
-                { -1, 1 }, // lên phải
-                { 0, -1 }, // trái
-                { 0, 1 }, // phải
-                { 1, -1 }, // xuống trái
-                { 1, 0 }, // xuống
-                { 1, 1 } // xuống phải
-        };
-
-        for (int i = 0; i < kingMoves.length; i++) {
-            int newX = x + kingMoves[i][0];
-            int newY = y + kingMoves[i][1];
-
-            if (!checkValidMove(newX, newY))
-                continue;
-
-            CellPanel targetCell = boardCell[newX][newY];
-            ChessPiece targetPiece = targetCell.currnetChessPiece;
-
-            if (targetPiece == null) {
-                // Chỉ highlight nếu nước đi an toàn (không bị chiếu)
-                if (isMoveSafe(x, y, newX, newY)) {
-                    targetCell.setColor(true);
-                }
-            } else {
-                if (targetPiece.color != thisPiece.color) {
-                    // Chỉ highlight nếu nước đi an toàn (không bị chiếu)
-                    if (isMoveSafe(x, y, newX, newY)) {
-                        targetCell.setColor(false);
-                    }
-                }
-            }
-        }
-
+    private boolean isKingInCheck(PieceColor kingColor) {
+        int[] pos = findKingPosition(kingColor);
+        if (pos == null) return false;
+        return isSquareUnderAttack(pos[0], pos[1], kingColor == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE);
     }
 
-    private ChessPiece handlePawnPromotionIfNeeded(ChessPiece piece, int toX) {
-        if (piece == null)
-            return null;
-
-        // Chỉ quan tâm đến quân TỐT
-        if (piece.type == PieceType.PAWN) {
-            if (piece.color == PieceColor.WHITE && toX == 0) {
-                return new ChessPiece(PieceColor.WHITE, PieceType.QUEEN);
-            }
-            if (piece.color == PieceColor.BLACK && toX == 7) {
-                return new ChessPiece(PieceColor.BLACK, PieceType.QUEEN);
-            }
-        }
-
-        return piece;
-    }
-
-    public boolean checkValidMove(int n) {
-        return (n >= 0 && n <= 7);
-    }
-
-    public boolean checkValidMove(int x, int y) {
-        return checkValidMove(x) && checkValidMove(y);
-    }
-
-    /**
-     * Tìm vị trí vua của một màu
-     */
     private int[] findKingPosition(PieceColor color) {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                ChessPiece piece = boardCell[i][j].currnetChessPiece;
-                if (piece != null && piece.type == PieceType.KING && piece.color == color) {
-                    return new int[] { i, j };
-                }
-            }
-        }
-        return null; // Không tìm thấy vua (không bao giờ xảy ra trong game bình thường)
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                if (boardCell[i][j].currentChessPiece != null &&
+                        boardCell[i][j].currentChessPiece.type == PieceType.KING &&
+                        boardCell[i][j].currentChessPiece.color == color)
+                    return new int[]{i, j};
+        return null;
     }
 
-    /**
-     * Kiểm tra xem một ô có đang bị quân đối phương tấn công không
-     * 
-     * @param x             tọa độ x của ô cần kiểm tra
-     * @param y             tọa độ y của ô cần kiểm tra
-     * @param attackerColor màu của quân tấn công
-     */
     private boolean isSquareUnderAttack(int x, int y, PieceColor attackerColor) {
-        // Duyệt qua tất cả các quân đối phương
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                ChessPiece piece = boardCell[i][j].currnetChessPiece;
-                if (piece == null || piece.color != attackerColor) {
-                    continue; // Bỏ qua ô trống hoặc quân cùng màu
-                }
-
-                // Kiểm tra xem quân này có thể tấn công ô (x, y) không
-                if (canPieceAttackSquare(i, j, x, y, piece)) {
-                    return true;
+                ChessPiece p = boardCell[i][j].currentChessPiece;
+                if (p != null && p.color == attackerColor) {
+                    if (canPieceAttack(p.type, i, j, x, y)) return true;
                 }
             }
         }
         return false;
     }
 
-    /**
-     * Kiểm tra một quân có thể tấn công một ô không (không xét đến việc vua bị
-     * chiếu)
-     */
-    private boolean canPieceAttackSquare(int fromX, int fromY, int toX, int toY, ChessPiece piece) {
-        if (fromX == toX && fromY == toY) {
-            return false; // Không thể tấn công chính mình
-        }
-
-        switch (piece.type) {
-            case PAWN:
-                return canPawnAttack(fromX, fromY, toX, toY, piece.color);
-            case KNIGHT:
-                return canKnightAttack(fromX, fromY, toX, toY);
-            case ROOK:
-                return canRookAttack(fromX, fromY, toX, toY);
-            case BISHOP:
-                return canBishopAttack(fromX, fromY, toX, toY);
-            case QUEEN:
-                return canQueenAttack(fromX, fromY, toX, toY);
-            case KING:
-                return canKingAttack(fromX, fromY, toX, toY);
-            default:
-                return false;
-        }
+    private boolean canPieceAttack(PieceType type, int fx, int fy, int tx, int ty) {
+        return switch (type) {
+            case PAWN -> canPawnAttack(fx, fy, tx, ty, boardCell[fx][fy].currentChessPiece.color);
+            case KNIGHT -> canKnightAttack(fx, fy, tx, ty);
+            case ROOK -> canRookAttack(fx, fy, tx, ty);
+            case BISHOP -> canBishopAttack(fx, fy, tx, ty);
+            case QUEEN -> canQueenAttack(fx, fy, tx, ty);
+            case KING -> canKingAttack(fx, fy, tx, ty);
+        };
     }
 
-    private boolean canPawnAttack(int fromX, int fromY, int toX, int toY, PieceColor color) {
-        // Tốt chỉ tấn công chéo 1 ô
-        if (color == PieceColor.WHITE) {
-            return (fromX - toX == 1) && Math.abs(fromY - toY) == 1;
-        } else {
-            return (toX - fromX == 1) && Math.abs(fromY - toY) == 1;
-        }
+    private boolean canPawnAttack(int fx, int fy, int tx, int ty, PieceColor color) {
+        int dir = (color == PieceColor.WHITE) ? -1 : 1;
+        return (tx - fx == dir) && Math.abs(ty - fy) == 1;
     }
 
-    private boolean canKnightAttack(int fromX, int fromY, int toX, int toY) {
-        int dx = Math.abs(fromX - toX);
-        int dy = Math.abs(fromY - toY);
+    private boolean canKnightAttack(int fx, int fy, int tx, int ty) {
+        int dx = Math.abs(fx - tx), dy = Math.abs(fy - ty);
         return (dx == 2 && dy == 1) || (dx == 1 && dy == 2);
     }
 
-    private boolean canRookAttack(int fromX, int fromY, int toX, int toY) {
-        // Xe đi theo hàng hoặc cột
-        if (fromX != toX && fromY != toY) {
-            return false;
-        }
-
-        // Kiểm tra không có quân chặn đường
-        if (fromX == toX) { // Đi ngang
-            int start = Math.min(fromY, toY) + 1;
-            int end = Math.max(fromY, toY);
-            for (int y = start; y < end; y++) {
-                if (boardCell[fromX][y].currnetChessPiece != null) {
-                    return false;
-                }
-            }
-        } else { // Đi dọc
-            int start = Math.min(fromX, toX) + 1;
-            int end = Math.max(fromX, toX);
-            for (int x = start; x < end; x++) {
-                if (boardCell[x][fromY].currnetChessPiece != null) {
-                    return false;
-                }
-            }
+    private boolean canRookAttack(int fx, int fy, int tx, int ty) {
+        if (fx != tx && fy != ty) return false;
+        int stepX = Integer.compare(tx, fx), stepY = Integer.compare(ty, fy);
+        int x = fx + stepX, y = fy + stepY;
+        while (x != tx || y != ty) {
+            if (boardCell[x][y].currentChessPiece != null) return false;
+            x += stepX; y += stepY;
         }
         return true;
     }
 
-    private boolean canBishopAttack(int fromX, int fromY, int toX, int toY) {
-        // Tượng đi chéo
-        if (Math.abs(fromX - toX) != Math.abs(fromY - toY)) {
-            return false;
-        }
-
-        // Kiểm tra không có quân chặn đường
-        int dx = (toX > fromX) ? 1 : -1;
-        int dy = (toY > fromY) ? 1 : -1;
-        int x = fromX + dx;
-        int y = fromY + dy;
-
-        while (x != toX && y != toY) {
-            if (boardCell[x][y].currnetChessPiece != null) {
-                return false;
-            }
-            x += dx;
-            y += dy;
+    private boolean canBishopAttack(int fx, int fy, int tx, int ty) {
+        if (Math.abs(fx - tx) != Math.abs(fy - ty)) return false;
+        int dx = Integer.compare(tx, fx), dy = Integer.compare(ty, fy);
+        int x = fx + dx, y = fy + dy;
+        while (x != tx) {
+            if (boardCell[x][y].currentChessPiece != null) return false;
+            x += dx; y += dy;
         }
         return true;
     }
 
-    private boolean canQueenAttack(int fromX, int fromY, int toX, int toY) {
-        // Hậu = Xe + Tượng
-        return canRookAttack(fromX, fromY, toX, toY) || canBishopAttack(fromX, fromY, toX, toY);
+    private boolean canQueenAttack(int fx, int fy, int tx, int ty) {
+        return canRookAttack(fx, fy, tx, ty) || canBishopAttack(fx, fy, tx, ty);
     }
 
-    private boolean canKingAttack(int fromX, int fromY, int toX, int toY) {
-        // Vua chỉ đi 1 ô
-        int dx = Math.abs(fromX - toX);
-        int dy = Math.abs(fromY - toY);
-        return dx <= 1 && dy <= 1;
+    private boolean canKingAttack(int fx, int fy, int tx, int ty) {
+        return Math.abs(fx - tx) <= 1 && Math.abs(fy - ty) <= 1;
     }
 
-    /**
-     * Kiểm tra vua của một màu có đang bị chiếu không
-     */
-    private boolean isKingInCheck(PieceColor kingColor) {
-        int[] kingPos = findKingPosition(kingColor);
-        if (kingPos == null) {
-            return false;
-        }
-
-        PieceColor enemyColor = (kingColor == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
-        return isSquareUnderAttack(kingPos[0], kingPos[1], enemyColor);
+    // --------------------------------------------------------------
+    // Hỗ trợ UI
+    // --------------------------------------------------------------
+    private void deSelectCellPanelAll() {
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                boardCell[i][j].deselect();
     }
 
-    /**
-     * Simulate một nước đi và kiểm tra xem nước đi đó có làm vua bị chiếu không
-     * 
-     * @return true nếu nước đi hợp lệ (không làm vua bị chiếu), false nếu không hợp
-     *         lệ
-     */
-    private boolean isMoveSafe(int fromX, int fromY, int toX, int toY) {
-        // Lưu lại trạng thái ban đầu
-        ChessPiece movingPiece = boardCell[fromX][fromY].currnetChessPiece;
-        ChessPiece capturedPiece = boardCell[toX][toY].currnetChessPiece;
-
-        // Thực hiện nước đi tạm thời
-        boardCell[toX][toY].currnetChessPiece = movingPiece;
-        boardCell[fromX][fromY].currnetChessPiece = null;
-
-        // Kiểm tra vua có bị chiếu không
-        boolean safe = !isKingInCheck(movingPiece.color);
-
-        // Hoàn tác nước đi
-        boardCell[fromX][fromY].currnetChessPiece = movingPiece;
-        boardCell[toX][toY].currnetChessPiece = capturedPiece;
-
-        return safe;
-    }
-
-    /**
-     * Highlight vua đang bị chiếu bằng màu cam
-     */
     private void highlightKingInCheck() {
-        // Kiểm tra vua của người chơi hiện tại có bị chiếu không
+        deSelectCellPanelAll();
         if (isKingInCheck(currentTurn)) {
-            int[] kingPos = findKingPosition(currentTurn);
-            if (kingPos != null) {
-                boardCell[kingPos[0]][kingPos[1]].setCheckColor();
-            }
+            int[] pos = findKingPosition(currentTurn);
+            if (pos != null) boardCell[pos[0]][pos[1]].setCheckColor();
+        }
+    }
+
+    // Inner class Move cho Minimax
+    private static class Move {
+        int fromX, fromY, toX, toY;
+        ChessPiece captured;
+        boolean wasDoublePawn;
+
+        Move(int fx, int fy, int tx, int ty) {
+            fromX = fx; fromY = fy; toX = tx; toY = ty;
         }
     }
 }
