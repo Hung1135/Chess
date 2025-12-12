@@ -7,6 +7,7 @@ public class CenterPanel extends JPanel {
     private BoardState boardState;
     private CellPanel selectedCell;
     private PieceColor currentTurn = PieceColor.WHITE;
+    private ChessAI ai;
 
     // En Passant: Lưu vị trí tốt vừa nhảy 2 ô ở nước đi trước
     private int[] lastPawnDoubleMove = null; // [x, y] của tốt vừa nhảy 2 ô
@@ -61,7 +62,47 @@ public class CenterPanel extends JPanel {
             isWhite = !isWhite;
         }
         selectedCell = null;
+        ai = new ChessAI(PieceColor.BLACK);
     }
+    private void makeAIMoveNow() {
+        ChessPiece[][] board = exportBoard();
+        GameState root = new GameState(board, currentTurn);
+        int depth = 3;
+        Move bestMove = ai.findBestMove(root, depth);
+
+        if (bestMove == null) {
+            System.out.println("AI không còn nước đi (bí cờ / hết cờ).");
+            return;
+        }
+
+        // 4. Áp dụng Move của AI
+        CellPanel fromCell = boardCell[bestMove.fromX][bestMove.fromY];
+        CellPanel toCell   = boardCell[bestMove.toX][bestMove.toY];
+
+        ChessPiece movingPiece = fromCell.currnetChessPiece;
+        if (movingPiece == null) {
+            return;
+        }
+
+        toCell.addImage(movingPiece);
+        fromCell.removePiece();
+
+        // 5. Đổi lượt lại cho người chơi
+        currentTurn = (currentTurn == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
+        System.out.println("Tới lượt: " + currentTurn);
+    }
+    private void makeAIMove() {
+        int delayMs = 700;
+
+
+        Timer timer = new Timer(delayMs, e -> {
+            makeAIMoveNow();
+            ((Timer) e.getSource()).stop();    // dừng timer sau 1 lần
+        });
+        timer.setRepeats(false); // chỉ chạy 1 lần
+        timer.start();
+    }
+
 
     public void onclickCellPanel(int x, int y) {
 
@@ -156,6 +197,10 @@ public class CenterPanel extends JPanel {
                 // Nếu bạn có đổi lượt thì giữ lại:
                 currentTurn = (currentTurn == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
                 System.out.println("Tới lượt: " + currentTurn);
+                if (currentTurn == ai.getAiColor()) {
+                    makeAIMove();
+                }
+
 
                 // Highlight vua nếu bị chiếu sau khi đổi lượt
                 highlightKingInCheck();
@@ -699,4 +744,29 @@ public class CenterPanel extends JPanel {
             }
         }
     }
+    public ChessPiece[][] exportBoard() {
+        ChessPiece[][] board = new ChessPiece[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                board[i][j] = boardCell[i][j].currnetChessPiece;
+            }
+        }
+        return board;
+    }
+    public void debugHeuristic() {
+        ChessPiece[][] board = exportBoard();
+
+        // 2. Tạo state từ bàn cờ đó
+        GameState state = new GameState(board);
+
+        ChessAI ai = new ChessAI(PieceColor.BLACK);
+        // 4. Gọi heuristic
+        int score = ai.heuristic(state);
+
+    }
+
+
+
+
+
 }
