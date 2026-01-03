@@ -31,7 +31,7 @@ public class SetupGameDialog extends JDialog {
             String black = (String) blackCombo.getSelectedItem();
             int depth = (Integer) depthSpinner.getValue();
 
-           // GameFrame.Instance.centerpanel.setPlayers(white, black, depth);
+           GameFrame.Instance.centerpanel.setPlayers(white, black, depth);
             dispose();
         });
         cancel.addActionListener(e -> dispose());

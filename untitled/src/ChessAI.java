@@ -3,7 +3,7 @@ import java.util.List;
 public class ChessAI {
     private PieceColor aiColor;
     private Move bestMove;
-
+    private int depth = 3; // mặc định
     public Move getBestMove() {
         return bestMove;
     }
@@ -18,6 +18,10 @@ public class ChessAI {
 
     public void setAiColor(PieceColor aiColor) {
         this.aiColor = aiColor;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
     }
 
     public int heuristic(GameState state) {

@@ -199,7 +199,7 @@ public class CenterPanel extends JPanel {
                 // Nếu bạn có đổi lượt thì giữ lại:
                 currentTurn = (currentTurn == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
                 System.out.println("Tới lượt: " + currentTurn);
-                if (currentTurn == ai.getAiColor()) {
+                if (ai != null &&currentTurn == ai.getAiColor()) {
                     makeAIMove();
                 }
 
@@ -767,6 +767,62 @@ public class CenterPanel extends JPanel {
         // 4. Gọi heuristic
         int score = ai.heuristic(state);
 
+    }
+
+
+
+    public void setPlayers(String white, String black, int depth) {
+        // Xóa toàn bộ ô cũ
+        this.removeAll();
+        boardCell = new CellPanel[8][8];
+
+        boolean isWhite = true;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                CellPanel cellPanel = new CellPanel(isWhite, i, j);
+
+                // Khởi tạo quân cờ như constructor ban đầu
+                if (i == 1 || i == 6) {
+                    cellPanel.addImage(new ChessPiece(i == 1 ? PieceColor.BLACK : PieceColor.WHITE, PieceType.PAWN));
+                }
+                if (i == 0 && (j == 0 || j == 7)) cellPanel.addImage(new ChessPiece(PieceColor.BLACK, PieceType.ROOK));
+                if (i == 7 && (j == 0 || j == 7)) cellPanel.addImage(new ChessPiece(PieceColor.WHITE, PieceType.ROOK));
+                if (i == 0 && (j == 1 || j == 6)) cellPanel.addImage(new ChessPiece(PieceColor.BLACK, PieceType.KNIGHT));
+                if (i == 7 && (j == 1 || j == 6)) cellPanel.addImage(new ChessPiece(PieceColor.WHITE, PieceType.KNIGHT));
+                if (i == 0 && (j == 2 || j == 5)) cellPanel.addImage(new ChessPiece(PieceColor.BLACK, PieceType.BISHOP));
+                if (i == 7 && (j == 2 || j == 5)) cellPanel.addImage(new ChessPiece(PieceColor.WHITE, PieceType.BISHOP));
+                if (i == 0 && j == 4) cellPanel.addImage(new ChessPiece(PieceColor.BLACK, PieceType.KING));
+                if (i == 7 && j == 4) cellPanel.addImage(new ChessPiece(PieceColor.WHITE, PieceType.KING));
+                if (i == 0 && j == 3) cellPanel.addImage(new ChessPiece(PieceColor.BLACK, PieceType.QUEEN));
+                if (i == 7 && j == 3) cellPanel.addImage(new ChessPiece(PieceColor.WHITE, PieceType.QUEEN));
+
+                this.add(cellPanel);
+                boardCell[i][j] = cellPanel;
+                isWhite = !isWhite;
+            }
+            isWhite = !isWhite;
+        }
+
+        // Reset trạng thái
+        selectedCell = null;
+        boardState = BoardState.NO_SELECT;
+        currentTurn = PieceColor.WHITE;
+        lastPawnDoubleMove = null;
+
+        // Thiết lập AI
+        if ("Computer".equalsIgnoreCase(black)) {
+            ai = new ChessAI(PieceColor.BLACK);
+            ai.setDepth(depth);
+        } else if ("Computer".equalsIgnoreCase(white)) {
+            ai = new ChessAI(PieceColor.WHITE);
+            ai.setDepth(depth);
+        } else {
+            ai = null; // cả hai đều là Human
+        }
+
+        // BẮT BUỘC: refresh lại UI
+        this.revalidate();
+        this.repaint();
     }
 
 
