@@ -6,18 +6,23 @@ import java.awt.event.ActionListener;
 public class TopPanel extends JPanel {
 
     public TopPanel() {
-        JButton  button = new JButton();
-        button.setText("Menu");
-        button.setPreferredSize(new Dimension(100,30));
-        //chưa làm menu
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("menu");
-            }
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu("Menu");
+
+        JMenuItem setupItem = new JMenuItem("Setup Game");
+        setupItem.addActionListener(e -> {
+            Window window = SwingUtilities.getWindowAncestor(this);
+            SetupGameDialog dialog = new SetupGameDialog(window);
+            dialog.setLocationRelativeTo(window);
+            dialog.setVisible(true);
         });
-        this.add(button);
+
+        menu.add(setupItem);
+        menuBar.add(menu);
+        add(menuBar);
+    }
 
 
- }
+
 }
+

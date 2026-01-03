@@ -64,6 +64,7 @@ public class CenterPanel extends JPanel {
         selectedCell = null;
         ai = new ChessAI(PieceColor.BLACK);
     }
+
     private void makeAIMoveNow() {
         ChessPiece[][] board = exportBoard();
         GameState root = new GameState(board, currentTurn);
@@ -77,7 +78,7 @@ public class CenterPanel extends JPanel {
 
         // 4. Áp dụng Move của AI
         CellPanel fromCell = boardCell[bestMove.fromX][bestMove.fromY];
-        CellPanel toCell   = boardCell[bestMove.toX][bestMove.toY];
+        CellPanel toCell = boardCell[bestMove.toX][bestMove.toY];
 
         ChessPiece movingPiece = fromCell.currnetChessPiece;
         if (movingPiece == null) {
@@ -91,6 +92,7 @@ public class CenterPanel extends JPanel {
         currentTurn = (currentTurn == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
         System.out.println("Tới lượt: " + currentTurn);
     }
+
     private void makeAIMove() {
         int delayMs = 700;
 
@@ -182,7 +184,7 @@ public class CenterPanel extends JPanel {
 
                 // Cập nhật lastPawnDoubleMove nếu tốt vừa nhảy 2 ô
                 if (movingPiece.type == PieceType.PAWN && Math.abs(toX - fromX) == 2) {
-                    lastPawnDoubleMove = new int[] { toX, toY };
+                    lastPawnDoubleMove = new int[]{toX, toY};
                 } else {
                     // Xóa lastPawnDoubleMove nếu không phải tốt nhảy 2 ô
                     lastPawnDoubleMove = null;
@@ -352,14 +354,14 @@ public class CenterPanel extends JPanel {
 
         // 8 hướng đi của quân Mã: (±2, ±1) và (±1, ±2)
         int[][] knightMoves = {
-                { 2, 1 },
-                { 2, -1 },
-                { -2, 1 },
-                { -2, -1 },
-                { 1, 2 },
-                { 1, -2 },
-                { -1, 2 },
-                { -1, -2 }
+                {2, 1},
+                {2, -1},
+                {-2, 1},
+                {-2, -1},
+                {1, 2},
+                {1, -2},
+                {-1, 2},
+                {-1, -2}
         };
 
         for (int i = 0; i < knightMoves.length; i++) {
@@ -397,10 +399,10 @@ public class CenterPanel extends JPanel {
             return;
 
         int[][] directions = {
-                { -1, 0 }, // lên
-                { 1, 0 }, // xuống
-                { 0, -1 }, // trái
-                { 0, 1 } // phải
+                {-1, 0}, // lên
+                {1, 0}, // xuống
+                {0, -1}, // trái
+                {0, 1} // phải
         };
 
         // Duyệt từng hướng một
@@ -443,10 +445,10 @@ public class CenterPanel extends JPanel {
             return;
 
         int[][] directions = {
-                { -1, -1 }, // lên - trái
-                { -1, 1 }, // lên - phải
-                { 1, -1 }, // xuống - trái
-                { 1, 1 } // xuống - phải
+                {-1, -1}, // lên - trái
+                {-1, 1}, // lên - phải
+                {1, -1}, // xuống - trái
+                {1, 1} // xuống - phải
         };
 
         for (int d = 0; d < directions.length; d++) {
@@ -489,14 +491,14 @@ public class CenterPanel extends JPanel {
 
         // 8 hướng xung quanh vua
         int[][] kingMoves = {
-                { -1, -1 }, // lên trái
-                { -1, 0 }, // lên
-                { -1, 1 }, // lên phải
-                { 0, -1 }, // trái
-                { 0, 1 }, // phải
-                { 1, -1 }, // xuống trái
-                { 1, 0 }, // xuống
-                { 1, 1 } // xuống phải
+                {-1, -1}, // lên trái
+                {-1, 0}, // lên
+                {-1, 1}, // lên phải
+                {0, -1}, // trái
+                {0, 1}, // phải
+                {1, -1}, // xuống trái
+                {1, 0}, // xuống
+                {1, 1} // xuống phải
         };
 
         for (int i = 0; i < kingMoves.length; i++) {
@@ -559,7 +561,7 @@ public class CenterPanel extends JPanel {
             for (int j = 0; j < 8; j++) {
                 ChessPiece piece = boardCell[i][j].currnetChessPiece;
                 if (piece != null && piece.type == PieceType.KING && piece.color == color) {
-                    return new int[] { i, j };
+                    return new int[]{i, j};
                 }
             }
         }
@@ -568,7 +570,7 @@ public class CenterPanel extends JPanel {
 
     /**
      * Kiểm tra xem một ô có đang bị quân đối phương tấn công không
-     * 
+     *
      * @param x             tọa độ x của ô cần kiểm tra
      * @param y             tọa độ y của ô cần kiểm tra
      * @param attackerColor màu của quân tấn công
@@ -709,9 +711,9 @@ public class CenterPanel extends JPanel {
 
     /**
      * Simulate một nước đi và kiểm tra xem nước đi đó có làm vua bị chiếu không
-     * 
+     *
      * @return true nếu nước đi hợp lệ (không làm vua bị chiếu), false nếu không hợp
-     *         lệ
+     * lệ
      */
     private boolean isMoveSafe(int fromX, int fromY, int toX, int toY) {
         // Lưu lại trạng thái ban đầu
@@ -744,6 +746,7 @@ public class CenterPanel extends JPanel {
             }
         }
     }
+
     public ChessPiece[][] exportBoard() {
         ChessPiece[][] board = new ChessPiece[8][8];
         for (int i = 0; i < 8; i++) {
@@ -753,6 +756,7 @@ public class CenterPanel extends JPanel {
         }
         return board;
     }
+
     public void debugHeuristic() {
         ChessPiece[][] board = exportBoard();
 
@@ -764,7 +768,6 @@ public class CenterPanel extends JPanel {
         int score = ai.heuristic(state);
 
     }
-
 
 
 
