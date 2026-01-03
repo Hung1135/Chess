@@ -2,8 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class SetupGameDialog extends JDialog {
-    private final JComboBox<String> whiteCombo = new JComboBox<>(new String[]{"Human", "Computer"});
-    private final JComboBox<String> blackCombo = new JComboBox<>(new String[]{"Human", "Computer"});
+    private final JComboBox<String> blackCombo = new JComboBox<>(new String[]{"Computer", "Human"});
+    private final JComboBox<String> whiteCombo = new JComboBox<>(new String[]{"Human"});
     private final JSpinner depthSpinner = new JSpinner(new SpinnerNumberModel(3, 1, 10, 1));
 
     public SetupGameDialog(Window parent) {
@@ -15,10 +15,10 @@ public class SetupGameDialog extends JDialog {
         JPanel panel = new JPanel(new GridLayout(3, 2, 10, 15));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        panel.add(new JLabel("White Player:"));
-        panel.add(whiteCombo);
         panel.add(new JLabel("Black Player:"));
         panel.add(blackCombo);
+        panel.add(new JLabel("White Player:"));
+        panel.add(whiteCombo);
         panel.add(new JLabel("AI Search Depth:"));
         panel.add(depthSpinner);
 
