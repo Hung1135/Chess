@@ -45,23 +45,11 @@ public class ChessAI {
     }
 
     public int heuristic(GameState state) {
-        ChessPiece[][] board = state.getBoard();
         int score = 0;
-
-        for (int x = 0; x < 8; x++) {
-            for (int y = 0; y < 8; y++) {
-                ChessPiece p = board[x][y];
-                if (p == null) continue;
-
-                int value = getPieceValue(p);
-
-                if (p.color == PieceColor.WHITE) {
-                    score += value;
-                } else {
-                    score -= value;
-                }
-            }
-        }
+        score += materialScore(state);
+        score += centerScore(state);
+        score += bishopPairScore(state);
+        score += mobilityScore(state);
 
         return score;
     }
@@ -269,4 +257,69 @@ public class ChessAI {
     public void resetMoveCounter() {
         moveCounter = 0;
     }
+    private int materialScore(GameState state) {
+        ChessPiece[][] board = state.getBoard();
+        int s = 0;
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                ChessPiece p = board[x][y];
+                if (p == null) continue;
+                int sign = (p.color == PieceColor.WHITE) ? 1 : -1;
+                s += sign * getPieceValue(p);
+            }
+        }
+        return s;
+    }
+    private int centerScore(GameState state) {
+        final int W_CENTER = 3;
+        ChessPiece[][] board = state.getBoard();
+        int s = 0;
+
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                ChessPiece p = board[x][y];
+                if (p == null) continue;
+                if (p.type != PieceType.KNIGHT && p.type != PieceType.BISHOP) continue;
+
+                int sign = (p.color == PieceColor.WHITE) ? 1 : -1;
+                int d = distToCenter(x, y);
+                s += sign * (4 - d) * W_CENTER;
+            }
+        }
+        return s;
+    }
+    private int mobilityScore(GameState state) {
+        int whiteMoves = state.generateAllLegalMoves(PieceColor.WHITE).size();
+        int blackMoves = state.generateAllLegalMoves(PieceColor.BLACK).size();
+        return whiteMoves - blackMoves;
+    }
+    private int distToCenter(int x, int y) {
+        int d1 = Math.abs(x - 3) + Math.abs(y - 3);
+        int d2 = Math.abs(x - 3) + Math.abs(y - 4);
+        int d3 = Math.abs(x - 4) + Math.abs(y - 3);
+        int d4 = Math.abs(x - 4) + Math.abs(y - 4);
+        return Math.min(Math.min(d1, d2), Math.min(d3, d4));
+    }
+    private int bishopPairScore(GameState state) {
+        final int W_BISHOP_PAIR = 30;
+        ChessPiece[][] board = state.getBoard();
+
+        int whiteB = 0, blackB = 0;
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                ChessPiece p = board[x][y];
+                if (p == null) continue;
+                if (p.type != PieceType.BISHOP) continue;
+
+                if (p.color == PieceColor.WHITE) whiteB++;
+                else blackB++;
+            }
+        }
+
+        int score = 0;
+        if (whiteB >= 2) score += W_BISHOP_PAIR;
+        if (blackB >= 2) score -= W_BISHOP_PAIR;
+        return score;
+    }
+
 }

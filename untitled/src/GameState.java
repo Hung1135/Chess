@@ -43,8 +43,11 @@ public class GameState implements Cloneable {
     }
 
     public void applyMove(Move move) {
-        board[move.toX][move.toY] = move.movedPiece;
-        board[move.fromX][move.fromY] = null;
+        ChessPiece p = board[move.fromX][move.fromY];
+        if (p != null) {
+            board[move.toX][move.toY] = new ChessPiece(p.color, p.type);
+            board[move.fromX][move.fromY] = null;
+        }
     }
 
     // THÊM: Kiểm tra xem vua có bị chiếu không
