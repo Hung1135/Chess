@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import statistic.PerformanceLogger;
 
 public class SetupGameDialog extends JDialog {
     private final JComboBox<String> blackCombo = new JComboBox<>(new String[]{"Computer", "Human"});
@@ -10,7 +9,7 @@ public class SetupGameDialog extends JDialog {
 
     public SetupGameDialog(Window parent) {
         super(parent, "Setup Game", ModalityType.APPLICATION_MODAL);
-        setSize(400, 300);
+        setSize(400, 280);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
 
@@ -35,16 +34,15 @@ public class SetupGameDialog extends JDialog {
         panel.add(algorithmCombo);
 
         // Tooltip
-        JLabel infoLabel = new JLabel("<html><i>Minimax: Chậm hơn nhưng dễ hiểu<br>AlphaBeta: Nhanh hơn, tối ưu</i></html>");
-        infoLabel.setFont(new Font("Arial", Font.ITALIC, 11));
-        panel.add(new JLabel());
-        panel.add(infoLabel);
+//        JLabel infoLabel = new JLabel("<html><i>Minimax: Chậm hơn nhưng dễ hiểu<br>AlphaBeta: Nhanh hơn, tối ưu</i></html>");
+//        infoLabel.setFont(new Font("Arial", Font.ITALIC, 11));
+//        panel.add(new JLabel());
+//        panel.add(infoLabel);
 
         // Buttons
         JPanel buttons = new JPanel(new FlowLayout());
         JButton ok = new JButton("Start Game");
         JButton cancel = new JButton("Cancel");
-        JButton clearLogs = new JButton("Clear Logs");
 
         ok.addActionListener(e -> {
             String white = (String) whiteCombo.getSelectedItem();
@@ -58,16 +56,7 @@ public class SetupGameDialog extends JDialog {
 
         cancel.addActionListener(e -> dispose());
 
-        clearLogs.addActionListener(e -> {
-            PerformanceLogger.clearLogs();
-            JOptionPane.showMessageDialog(this,
-                    "Đã xóa log cũ!\nLog mới sẽ được ghi vào:\n• minimax_log.txt\n• alphabeta_log.txt",
-                    "Logs Cleared",
-                    JOptionPane.INFORMATION_MESSAGE);
-        });
-
         buttons.add(ok);
-        buttons.add(clearLogs);
         buttons.add(cancel);
 
         add(panel, BorderLayout.CENTER);

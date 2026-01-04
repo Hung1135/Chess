@@ -56,37 +56,11 @@ public class PerformanceLogger {
 
     private static void clearLog(String fileName) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(fileName, false))) {
-            writer.println("=== Performance Log Started ===");
+            writer.println("Performance Log Started");
             writer.println("Timestamp: " + dateFormat.format(new Date()));
-            writer.println("================================");
             writer.println();
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Không thể xóa file log: " + fileName, e);
-        }
-    }
-
-    /**
-     * Tạo báo cáo tổng hợp so sánh
-     */
-    public static void generateComparisonReport() {
-        String reportFile = "comparison_report.txt";
-
-        try (PrintWriter writer = new PrintWriter(new FileWriter(reportFile, false))) {
-            writer.println("╔════════════════════════════════════════════════════════════════╗");
-            writer.println("║          MINIMAX vs ALPHA-BETA COMPARISON REPORT               ║");
-            writer.println("╚════════════════════════════════════════════════════════════════╝");
-            writer.println();
-            writer.println("Report Generated: " + dateFormat.format(new Date()));
-            writer.println();
-            writer.println("────────────────────────────────────────────────────────────────");
-            writer.println("Xem chi tiết:");
-            writer.println("  • Minimax logs: " + MINIMAX_FILE);
-            writer.println("  • Alpha-Beta logs: " + ALPHABETA_FILE);
-            writer.println("────────────────────────────────────────────────────────────────");
-
-            logger.info("Báo cáo so sánh đã được tạo: " + reportFile);
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Không thể tạo báo cáo so sánh", e);
         }
     }
 }

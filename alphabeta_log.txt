@@ -1,27 +1,9 @@
-Jan 04, 2026 06:52:01 PM statistic.PerformanceLogger logPerformance
-INFO: Method: AlphaBeta | Move: 1 | Depth: 3 | Time: 0.068817 seconds | Memory: 19.98 MB
+Performance Log Started
+Timestamp: Jan 04, 2026 07:33:57 PM
 
-Jan 04, 2026 06:52:03 PM statistic.PerformanceLogger logPerformance
-INFO: Method: AlphaBeta | Move: 2 | Depth: 3 | Time: 0.032715 seconds | Memory: 29.98 MB
+Jan 04, 2026 07:34:17 PM statistic.PerformanceLogger logPerformance
+INFO: Method: AlphaBeta | Move: 1 | Depth: 3 | Time: 0.054230 seconds | Memory: 18.96 MB
 
-Jan 04, 2026 06:52:05 PM statistic.PerformanceLogger logPerformance
-INFO: Method: AlphaBeta | Move: 3 | Depth: 3 | Time: 0.039322 seconds | Memory: 32.98 MB
-
-Jan 04, 2026 06:52:36 PM statistic.PerformanceLogger logPerformance
-INFO: Method: AlphaBeta | Move: 1 | Depth: 4 | Time: 0.222524 seconds | Memory: 3.45 MB
-
-Jan 04, 2026 06:52:38 PM statistic.PerformanceLogger logPerformance
-INFO: Method: AlphaBeta | Move: 2 | Depth: 4 | Time: 0.302526 seconds | Memory: 36.07 MB
-
-Jan 04, 2026 06:53:08 PM statistic.PerformanceLogger logPerformance
-INFO: Method: AlphaBeta | Move: 1 | Depth: 5 | Time: 0.951225 seconds | Memory: 134.12 MB
-
-Jan 04, 2026 06:53:11 PM statistic.PerformanceLogger logPerformance
-INFO: Method: AlphaBeta | Move: 2 | Depth: 5 | Time: 1.124968 seconds | Memory: 53.14 MB
-
-Jan 04, 2026 06:53:14 PM statistic.PerformanceLogger logPerformance
-INFO: Method: AlphaBeta | Move: 3 | Depth: 5 | Time: 0.702673 seconds | Memory: 141.10 MB
-
-Jan 04, 2026 06:53:17 PM statistic.PerformanceLogger logPerformance
-INFO: Method: AlphaBeta | Move: 4 | Depth: 5 | Time: 1.299497 seconds | Memory: 180.14 MB
+Jan 04, 2026 07:34:20 PM statistic.PerformanceLogger logPerformance
+INFO: Method: AlphaBeta | Move: 2 | Depth: 3 | Time: 0.046088 seconds | Memory: 20.97 MB
 

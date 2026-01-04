@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import statistic.ComparisonAnalyzer;
 import statistic.PerformanceLogger;
 
 public class TopPanel extends JPanel {
@@ -18,22 +17,6 @@ public class TopPanel extends JPanel {
             dialog.setVisible(true);
         });
 
-        // Generate Report
-        JMenuItem reportItem = new JMenuItem("Generate Performance Report");
-        reportItem.addActionListener(e -> {
-            ComparisonAnalyzer.generateDetailedReport();
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Báo cáo đã được tạo!\n\n" +
-                            "Xem file:\n" +
-                            "• comparison_report.txt - Báo cáo tổng hợp\n" +
-                            "• minimax_log.txt - Log Minimax\n" +
-                            "• alphabeta_log.txt - Log Alpha-Beta",
-                    "Report Generated",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-        });
-
         // Clear Logs
         JMenuItem clearLogsItem = new JMenuItem("Clear Performance Logs");
         clearLogsItem.addActionListener(e -> {
@@ -47,36 +30,16 @@ public class TopPanel extends JPanel {
                 PerformanceLogger.clearLogs();
                 JOptionPane.showMessageDialog(
                         this,
-                        "Đã xóa tất cả log!",
+                        "Đã xóa tất cả log!\n\nLog mới sẽ được ghi vào:\n• minimax_log.txt\n• alphabeta_log.txt",
                         "Logs Cleared",
                         JOptionPane.INFORMATION_MESSAGE
                 );
             }
         });
 
-        // About
-        JMenuItem aboutItem = new JMenuItem("About");
-        aboutItem.addActionListener(e -> {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Chess Game with AI Comparison\n\n" +
-                            "Thuật toán:\n" +
-                            "• Minimax - Brute force search\n" +
-                            "• Alpha-Beta Pruning - Optimized search\n\n" +
-                            "Performance logs tự động được ghi vào:\n" +
-                            "• minimax_log.txt\n" +
-                            "• alphabeta_log.txt",
-                    "About",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-        });
-
         menu.add(setupItem);
         menu.addSeparator();
-        menu.add(reportItem);
         menu.add(clearLogsItem);
-        menu.addSeparator();
-        menu.add(aboutItem);
 
         menuBar.add(menu);
         add(menuBar);
