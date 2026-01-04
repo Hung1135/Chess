@@ -1,0 +1,156 @@
+Jan 04, 2026 06:47:42 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 1 | Depth: 3 | Time: 0.065760 seconds | Memory: 18.79 MB
+
+Jan 04, 2026 06:47:43 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 2 | Depth: 3 | Time: 0.046303 seconds | Memory: 21.83 MB
+
+Jan 04, 2026 06:47:47 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 3 | Depth: 3 | Time: 0.046565 seconds | Memory: 24.84 MB
+
+Jan 04, 2026 06:47:49 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 4 | Depth: 3 | Time: 0.037862 seconds | Memory: 18.85 MB
+
+Jan 04, 2026 06:47:54 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 5 | Depth: 3 | Time: 0.028726 seconds | Memory: 22.86 MB
+
+Jan 04, 2026 06:47:57 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 6 | Depth: 3 | Time: 0.023674 seconds | Memory: 26.86 MB
+
+Jan 04, 2026 06:48:06 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 7 | Depth: 3 | Time: 0.030438 seconds | Memory: 20.87 MB
+
+Jan 04, 2026 06:48:12 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 8 | Depth: 3 | Time: 0.032657 seconds | Memory: 22.87 MB
+
+Jan 04, 2026 06:48:16 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 9 | Depth: 3 | Time: 0.022371 seconds | Memory: 19.86 MB
+
+Jan 04, 2026 06:48:21 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 10 | Depth: 3 | Time: 0.022343 seconds | Memory: 17.61 MB
+
+Jan 04, 2026 06:48:24 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 11 | Depth: 3 | Time: 0.029340 seconds | Memory: 20.85 MB
+
+Jan 04, 2026 06:48:26 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 12 | Depth: 3 | Time: 0.031201 seconds | Memory: 17.86 MB
+
+Jan 04, 2026 06:48:28 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 13 | Depth: 3 | Time: 0.041344 seconds | Memory: 22.85 MB
+
+Jan 04, 2026 06:48:37 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 14 | Depth: 3 | Time: 0.042880 seconds | Memory: 28.85 MB
+
+Jan 04, 2026 06:48:46 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 15 | Depth: 3 | Time: 0.059809 seconds | Memory: 41.84 MB
+
+Jan 04, 2026 06:48:51 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 16 | Depth: 3 | Time: 0.042496 seconds | Memory: 36.84 MB
+
+Jan 04, 2026 06:48:54 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 17 | Depth: 3 | Time: 0.041608 seconds | Memory: 36.84 MB
+
+Jan 04, 2026 06:48:59 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 18 | Depth: 3 | Time: 0.006603 seconds | Memory: 2.84 MB
+
+Jan 04, 2026 06:49:14 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 19 | Depth: 3 | Time: 0.083557 seconds | Memory: 70.84 MB
+
+Jan 04, 2026 06:49:16 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 20 | Depth: 3 | Time: 0.089539 seconds | Memory: 82.90 MB
+
+Jan 04, 2026 06:49:21 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 21 | Depth: 3 | Time: 0.041137 seconds | Memory: 34.93 MB
+
+Jan 04, 2026 06:49:25 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 22 | Depth: 3 | Time: 0.042410 seconds | Memory: 27.93 MB
+
+Jan 04, 2026 06:49:31 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 23 | Depth: 3 | Time: 0.039485 seconds | Memory: 26.93 MB
+
+Jan 04, 2026 06:49:37 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 24 | Depth: 3 | Time: 0.039438 seconds | Memory: 32.93 MB
+
+Jan 04, 2026 06:49:40 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 25 | Depth: 3 | Time: 0.035646 seconds | Memory: 19.93 MB
+
+Jan 04, 2026 06:49:47 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 26 | Depth: 3 | Time: 0.019386 seconds | Memory: 12.93 MB
+
+Jan 04, 2026 06:49:54 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 27 | Depth: 3 | Time: 0.037364 seconds | Memory: 17.93 MB
+
+Jan 04, 2026 06:49:57 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 28 | Depth: 3 | Time: 0.041453 seconds | Memory: 20.93 MB
+
+Jan 04, 2026 06:50:03 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 29 | Depth: 3 | Time: 0.034946 seconds | Memory: 24.92 MB
+
+Jan 04, 2026 06:50:13 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 30 | Depth: 3 | Time: 0.033899 seconds | Memory: 23.93 MB
+
+Jan 04, 2026 06:50:17 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 31 | Depth: 3 | Time: 0.031064 seconds | Memory: 17.92 MB
+
+Jan 04, 2026 06:50:22 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 32 | Depth: 3 | Time: 0.018977 seconds | Memory: 10.92 MB
+
+Jan 04, 2026 06:50:26 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 33 | Depth: 3 | Time: 0.012295 seconds | Memory: 8.93 MB
+
+Jan 04, 2026 06:50:36 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 34 | Depth: 3 | Time: 0.001815 seconds | Memory: 0.93 MB
+
+Jan 04, 2026 06:50:38 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 35 | Depth: 3 | Time: 0.020843 seconds | Memory: 10.93 MB
+
+Jan 04, 2026 06:50:41 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 36 | Depth: 3 | Time: 0.015211 seconds | Memory: 6.92 MB
+
+Jan 04, 2026 06:50:43 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 37 | Depth: 3 | Time: 0.012403 seconds | Memory: 5.92 MB
+
+Jan 04, 2026 06:50:45 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 38 | Depth: 3 | Time: 0.015020 seconds | Memory: 6.92 MB
+
+Jan 04, 2026 06:50:48 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 39 | Depth: 3 | Time: 0.008532 seconds | Memory: 7.87 MB
+
+Jan 04, 2026 06:50:50 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 40 | Depth: 3 | Time: 0.007197 seconds | Memory: 4.92 MB
+
+Jan 04, 2026 06:50:51 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 41 | Depth: 3 | Time: 0.008107 seconds | Memory: 2.92 MB
+
+Jan 04, 2026 06:50:53 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 42 | Depth: 3 | Time: 0.008687 seconds | Memory: 2.92 MB
+
+Jan 04, 2026 06:50:55 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 43 | Depth: 3 | Time: 0.005726 seconds | Memory: 1.92 MB
+
+Jan 04, 2026 06:50:57 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 44 | Depth: 3 | Time: 0.004654 seconds | Memory: 0.92 MB
+
+Jan 04, 2026 06:50:59 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 45 | Depth: 3 | Time: 0.002782 seconds | Memory: 0.00 MB
+
+Jan 04, 2026 06:51:01 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 46 | Depth: 3 | Time: 0.003778 seconds | Memory: 0.92 MB
+
+Jan 04, 2026 06:51:02 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 47 | Depth: 3 | Time: 0.002497 seconds | Memory: 0.92 MB
+
+Jan 04, 2026 06:51:05 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 48 | Depth: 3 | Time: 0.007011 seconds | Memory: 0.00 MB
+
+Jan 04, 2026 06:51:07 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 49 | Depth: 3 | Time: 0.001313 seconds | Memory: 0.00 MB
+
+Jan 04, 2026 06:51:09 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 50 | Depth: 3 | Time: 0.004696 seconds | Memory: 0.92 MB
+
+Jan 04, 2026 06:51:11 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 51 | Depth: 3 | Time: 0.005802 seconds | Memory: 0.92 MB
+
+Jan 04, 2026 06:51:13 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 52 | Depth: 3 | Time: 0.004966 seconds | Memory: 0.92 MB
+

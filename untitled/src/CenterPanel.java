@@ -129,6 +129,7 @@ public class CenterPanel extends JPanel {
             }
             if (piece.color != currentTurn) {
                 System.out.println("Chưa tới lượt bên " + piece.color);
+
                 return;
             }
             clickedCellPannel.select(); // tô xanh ô đang chọn
@@ -768,9 +769,7 @@ public class CenterPanel extends JPanel {
 
     }
 
-
-
-    public void setPlayers(String white, String black, int depth) {
+    public void setPlayers(String white, String black, int depth, String algorithm) {
         // Xóa toàn bộ ô cũ
         this.removeAll();
         boardCell = new CellPanel[8][8];
@@ -812,9 +811,13 @@ public class CenterPanel extends JPanel {
         if ("Computer".equalsIgnoreCase(black)) {
             ai = new ChessAI(PieceColor.BLACK);
             ai.setDepth(depth);
+            ai.setAlgorithmType(algorithm); // THÊM DÒNG NÀY
+            ai.resetMoveCounter(); // THÊM DÒNG NÀY
         } else if ("Computer".equalsIgnoreCase(white)) {
             ai = new ChessAI(PieceColor.WHITE);
             ai.setDepth(depth);
+            ai.setAlgorithmType(algorithm); // THÊM DÒNG NÀY
+            ai.resetMoveCounter(); // THÊM DÒNG NÀY
         } else {
             ai = null; // cả hai đều là Human
         }
@@ -823,6 +826,8 @@ public class CenterPanel extends JPanel {
         this.revalidate();
         this.repaint();
     }
+
+
 
 
     //cái này kiểm tra còn nước đi nữa không, để biết bên thắng thua
