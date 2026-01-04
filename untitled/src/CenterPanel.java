@@ -68,11 +68,11 @@ public class CenterPanel extends JPanel {
     private void makeAIMoveNow() {
         ChessPiece[][] board = exportBoard();
         GameState root = new GameState(board, currentTurn);
-        int depth = 3;
+        int depth = ai.getDepth();
         Move bestMove = ai.findBestMove(root, depth);
 
         if (bestMove == null) {
-            System.out.println("AI không còn nước đi (bí cờ / hết cờ).");
+            System.out.println("AI không còn nước đi.");
             return;
         }
 
@@ -91,6 +91,16 @@ public class CenterPanel extends JPanel {
         // 5. Đổi lượt lại cho người chơi
         currentTurn = (currentTurn == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
         System.out.println("Tới lượt: " + currentTurn);
+
+        if (!hasAnyLegalMove(currentTurn)) {
+            if (isKingInCheck(currentTurn)) {
+                System.out.println("Checkmate! " + currentTurn + " thua.");
+            } else {
+                System.out.println("Hết cờ!");
+            }
+
+        }
+        highlightKingInCheck();
     }
 
     private void makeAIMove() {
@@ -104,116 +114,6 @@ public class CenterPanel extends JPanel {
         timer.setRepeats(false); // chỉ chạy 1 lần
         timer.start();
     }
-
-
-//    public void onclickCellPanel(int x, int y) {
-//
-//        CellPanel clickedCellPannel = boardCell[x][y];
-//        ChessPiece piece = clickedCellPannel.currnetChessPiece;
-//
-//        if (boardState == BoardState.NO_SELECT) {
-//            deSelectCellPanelAll();
-//            // Highlight vua nếu đang bị chiếu
-//            highlightKingInCheck();
-//            if (piece == null) {
-//                return;
-//            }
-//            if (piece.color != currentTurn) {
-//                System.out.println("Chưa tới lượt bên " + piece.color);
-//                return;
-//            }
-//            clickedCellPannel.select(); // tô xanh ô đang chọn
-//
-//            switch (piece.type) {
-//                case PAWN:
-//                    PawnCheck(x, y);
-//                    break;
-//                case KNIGHT:
-//                    KnightCheck(x, y);
-//                    break;
-//                case ROOK:
-//                    RookCheck(x, y);
-//                    break;
-//                case BISHOP:
-//                    BishopCheck(x, y);
-//                    break;
-//                case QUEEN:
-//                    QueenCheck(x, y);
-//                    break;
-//                case KING:
-//                    KingCheck(x, y);
-//                    break;
-//            }
-//
-//            selectedCell = clickedCellPannel;
-//            boardState = BoardState.PIECE_SELECT;
-//
-//        } else if (boardState == BoardState.PIECE_SELECT) {
-//            System.out.println(BoardState.PIECE_SELECT);
-//            if (boardCell[x][y].isValidMove) {
-//
-//                int fromX = selectedCell.x;
-//                int fromY = selectedCell.y;
-//                int toX = x;
-//                int toY = y;
-//                ChessPiece movingPiece = selectedCell.currnetChessPiece;
-//
-//                // Xử lý En Passant: Xóa tốt bị bắt qua đường
-//                if (movingPiece.type == PieceType.PAWN && lastPawnDoubleMove != null) {
-//                    // Kiểm tra nếu đi chuyển chéo đến ô trống (en passant)
-//                    if (Math.abs(toY - fromY) == 1 && boardCell[toX][toY].currnetChessPiece == null) {
-//                        // Kiểm tra nếu đang bắt tốt qua đường
-//                        if (lastPawnDoubleMove[1] == toY) {
-//                            if ((movingPiece.color == PieceColor.WHITE && lastPawnDoubleMove[0] == fromX
-//                                    && toX == fromX - 1) ||
-//                                    (movingPiece.color == PieceColor.BLACK && lastPawnDoubleMove[0] == fromX
-//                                            && toX == fromX + 1)) {
-//                                // Xóa tốt bị bắt qua đường
-//                                boardCell[lastPawnDoubleMove[0]][lastPawnDoubleMove[1]].removePiece();
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                ChessPiece pieceAfterMove = handlePawnPromotionIfNeeded(movingPiece, toX);
-//
-//                clickedCellPannel.addImage(pieceAfterMove);
-//
-//                // Xóa quân ở ô cũ
-//                selectedCell.removePiece();
-//
-//                // Cập nhật lastPawnDoubleMove nếu tốt vừa nhảy 2 ô
-//                if (movingPiece.type == PieceType.PAWN && Math.abs(toX - fromX) == 2) {
-//                    lastPawnDoubleMove = new int[]{toX, toY};
-//                } else {
-//                    // Xóa lastPawnDoubleMove nếu không phải tốt nhảy 2 ô
-//                    lastPawnDoubleMove = null;
-//                }
-//
-//                selectedCell = null;
-//
-//                // Chuyển trạng thái
-//                boardState = BoardState.NO_SELECT;
-//                deSelectCellPanelAll();
-//
-//                // Nếu bạn có đổi lượt thì giữ lại:
-//                currentTurn = (currentTurn == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
-//                System.out.println("Tới lượt: " + currentTurn);
-//                if (ai != null &&currentTurn == ai.getAiColor()) {
-//                    makeAIMove();
-//                }
-//
-//
-//                // Highlight vua nếu bị chiếu sau khi đổi lượt
-//                highlightKingInCheck();
-//
-//            } else {
-//                deSelectCellPanelAll();// thi bo select
-//                selectedCell = null;
-//                boardState = BoardState.NO_SELECT;
-//            }
-//        }
-//    }
 
     public void onclickCellPanel(int x, int y) {
 

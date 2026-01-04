@@ -24,6 +24,10 @@ public class ChessAI {
         this.depth = depth;
     }
 
+    public int getDepth() {
+        return depth;
+    }
+
     public int heuristic(GameState state) {
         ChessPiece[][] board = state.getBoard();
         int score = 0;

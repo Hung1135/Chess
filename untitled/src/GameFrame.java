@@ -13,7 +13,7 @@ public class GameFrame extends JFrame {
     public GameFrame() {
         Instance = this;
         this.setTitle("Chess");
-        this.setSize(600, 700);
+        this.setSize(650, 700);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocation(200, 100);
         this.setVisible(true);
