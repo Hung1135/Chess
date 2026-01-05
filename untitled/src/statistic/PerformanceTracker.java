@@ -9,14 +9,11 @@ public class PerformanceTracker {
         this.runtime = Runtime.getRuntime();
     }
 
-    /**
-     * Bắt đầu đo hiệu suất
-     */
+    //bắt đầu đo hiệu suất
     public void start() {
         // Gọi garbage collector trước khi đo
         runtime.gc();
 
-        // Đợi một chút để GC hoàn thành
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
@@ -27,25 +24,19 @@ public class PerformanceTracker {
         startTime = System.nanoTime();
     }
 
-    /**
-     * Kết thúc đo và trả về thời gian (giây)
-     */
+    //Kết thúc đo và trả về thời gian (giây)
     public double getElapsedTimeSeconds() {
         long endTime = System.nanoTime();
         return (endTime - startTime) / 1_000_000_000.0;
     }
 
-    /**
-     * Lấy bộ nhớ sử dụng (MB)
-     */
+//    Lấy bộ nhớ sử dụng (MB)
     public double getMemoryUsedMB() {
         long endMemory = runtime.totalMemory() - runtime.freeMemory();
         return (endMemory - startMemory) / (1024.0 * 1024.0);
     }
 
-    /**
-     * Lấy cả thời gian và bộ nhớ
-     */
+    //Lấy cả thời gian và bộ nhớ
     public PerformanceResult stop() {
         double time = getElapsedTimeSeconds();
         double memory = getMemoryUsedMB();

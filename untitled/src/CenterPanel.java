@@ -188,6 +188,7 @@ public class CenterPanel extends JPanel {
                 deSelectCellPanelAll();
 
                 // 🔄 Đổi lượt
+                // Đổi lượt
                 currentTurn = (currentTurn == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
                 System.out.println("Tới lượt: " + currentTurn);
 
@@ -195,6 +196,8 @@ public class CenterPanel extends JPanel {
                 if (!hasAnyLegalMove(currentTurn)) {
                     if (isKingInCheck(currentTurn)) {
                         System.out.println("Checkmate! " + currentTurn + " thua.");
+                    }else {
+                        System.out.println("Hết cờ!");
                     }
                 }
 

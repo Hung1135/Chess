@@ -18,7 +18,6 @@ public class GameFrame extends JFrame {
         this.setLocation(200, 100);
         this.setVisible(true);
 
-
         //menu
         toppanel = new TopPanel();
         //bàn cờ
