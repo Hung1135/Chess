@@ -289,9 +289,10 @@ public class ChessAI {
         return s;
     }
     private int mobilityScore(GameState state) {
+        final int W_MOBILITY = 2;
         int whiteMoves = state.generateAllLegalMoves(PieceColor.WHITE).size();
         int blackMoves = state.generateAllLegalMoves(PieceColor.BLACK).size();
-        return whiteMoves - blackMoves;
+        return (whiteMoves - blackMoves) * W_MOBILITY;
     }
     private int distToCenter(int x, int y) {
         int d1 = Math.abs(x - 3) + Math.abs(y - 3);

@@ -156,7 +156,7 @@ public class GameState implements Cloneable {
         return true;
     }
 
-    // SỬA: isOver() cần kiểm tra cả checkmate
+
     public boolean isOver() {
         List<Move> moves = generateAllLegalMoves(currentTurn);
         return moves.isEmpty();

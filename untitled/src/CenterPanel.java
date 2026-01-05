@@ -187,14 +187,15 @@ public class CenterPanel extends JPanel {
                 boardState = BoardState.NO_SELECT;
                 deSelectCellPanelAll();
 
-                // 🔄 Đổi lượt
                 currentTurn = (currentTurn == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
                 System.out.println("Tới lượt: " + currentTurn);
 
-                // 🔎 Kiểm tra hết nước đi
+                //  Kiểm tra hết nước đi
                 if (!hasAnyLegalMove(currentTurn)) {
                     if (isKingInCheck(currentTurn)) {
                         System.out.println("Checkmate! " + currentTurn + " thua.");
+                    }else {
+                        System.out.println("Hết cờ!");
                     }
                 }
 
