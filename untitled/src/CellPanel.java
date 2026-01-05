@@ -14,7 +14,7 @@ public class CellPanel extends JPanel {
     private final Color blue = Color.BLUE;
     private final Color red = Color.RED;
     private final Color green = Color.GREEN;
-    private final Color orange = new Color(255, 165, 0); // Màu cam cho vua bị chiếu
+    private final Color orange = new Color(255, 165, 0);
 
     public boolean isValidMove;
     public int x;

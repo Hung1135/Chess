@@ -1,0 +1,9 @@
+Performance Log Started
+Timestamp: Jan 04, 2026 07:33:57 PM
+
+Jan 04, 2026 07:34:40 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 1 | Depth: 3 | Time: 0.084124 seconds | Memory: 18.98 MB
+
+Jan 04, 2026 07:34:41 PM statistic.PerformanceLogger logPerformance
+INFO: Method: Minimax | Move: 2 | Depth: 3 | Time: 0.043066 seconds | Memory: 20.99 MB
+

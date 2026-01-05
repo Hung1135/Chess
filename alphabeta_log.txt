@@ -1,0 +1,9 @@
+Performance Log Started
+Timestamp: Jan 04, 2026 07:33:57 PM
+
+Jan 04, 2026 07:34:17 PM statistic.PerformanceLogger logPerformance
+INFO: Method: AlphaBeta | Move: 1 | Depth: 3 | Time: 0.054230 seconds | Memory: 18.96 MB
+
+Jan 04, 2026 07:34:20 PM statistic.PerformanceLogger logPerformance
+INFO: Method: AlphaBeta | Move: 2 | Depth: 3 | Time: 0.046088 seconds | Memory: 20.97 MB
+
