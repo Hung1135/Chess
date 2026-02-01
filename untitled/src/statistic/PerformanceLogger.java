@@ -14,14 +14,7 @@ public class PerformanceLogger {
     private static final String ALPHABETA_FILE = "alphabeta_log.txt";
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss a");
 
-    /**
-     * Log hiệu suất của thuật toán
-     * @param algorithmType "Minimax" hoặc "AlphaBeta"
-     * @param timeSeconds thời gian thực thi (giây)
-     * @param memoryMB bộ nhớ sử dụng (MB)
-     * @param depth độ sâu tìm kiếm
-     * @param moveNumber số nước đi
-     */
+
     public static void logPerformance(String algorithmType, double timeSeconds, double memoryMB, int depth, int moveNumber) {
         String fileName = algorithmType.equalsIgnoreCase("Minimax") ? MINIMAX_FILE : ALPHABETA_FILE;
         String timestamp = dateFormat.format(new Date());
@@ -46,9 +39,7 @@ public class PerformanceLogger {
         }
     }
 
-    /**
-     * Xóa nội dung file log cũ để bắt đầu session mới
-     */
+    //Xóa nội dung file log cũ để bắt đầu session mới
     public static void clearLogs() {
         clearLog(MINIMAX_FILE);
         clearLog(ALPHABETA_FILE);
